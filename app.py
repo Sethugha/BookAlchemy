@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 
 from data_models import db, Author, Book
 import os
-
+import handle_csv
 
 storage_path = f"""{os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                  'data', 'library.db'))}"""
@@ -35,15 +35,15 @@ def get_books():
 
 
 @app.route('/add_author', methods=['GET', 'POST'])
-def author():
+def add_author():
     if request.method == 'GET':
         return render_template('add_author.html')
 
     elif request.method == 'POST':
         # Handle the POST request
         name = request.form.get('name')
-        birth_date = convert_datestring(request.form.get('birth_date'))
-        date_of_death = convert_datestring(request.form.get('date_of_death'))
+        birth_date = convert_date_string(request.form.get('birth_date'))
+        date_of_death = convert_date_string(request.form.get('date_of_death'))
         author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
         try:
             db.session.add(author)
@@ -55,22 +55,20 @@ def author():
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
-def book():
+def add_book():
     if request.method == 'GET':
         return render_template('add_book.html')
     elif request.method == 'POST':
         # Handle the POST request
+
         title = request.form.get('title')
         authorname = request.form.get('author')
-        isbn13 = request.form.get('isbn13')
-        if isbn13:
-            isbn = isbn13
-        else:
-            isbn10 = request.form.get('isbn10')
-            isbn = int(isbn10)
-        author = db.session.query(Author).filter(Author.name == authorname).one()
+        isbn = request.form.get('isbn')
         publication_year = request.form.get('publication_year')
-        book = Book(title=title, isbn=isbn, publication_year=publication_year,author_id=author.id)
+
+        author = db.session.query(Author).filter(Author.name == authorname).one()
+        book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author.id)
+
         try:
             db.session.add(book)
             db.session.commit()
@@ -90,45 +88,15 @@ def sort():
 def delete_book():
     pass
 
-@app.route('/query')
+
+@app.route('/add_bulk', methods=['POST'])
+def bulk_add_books():
+    booklist = request.form.get('booklist')
+    return booklist
 
 
-def validate_isbn_13(isbn13):
-    """calculates the isbn13 checksum and compares it
-    with the last digit. Must be equal.
-    """
-    checksum1 = int(isbn13[-1])
-    sum = 0
-    for i in range(1, 13, 2):
-        sum += int(isbn13[i]) * 3
-    for j in range(0, 12, 2):
-        sum += int(isbn13[j])
-    cs_digit = str(sum)[-1]
-    if int(cs_digit) == 0:
-        checksum2 = 0
-    else:
-        checksum2 = 10 - int(cs_digit)
-    if checksum1 == checksum2:
-        return True
-    return False
 
-
-def validate_isbn_10(isbn10):
-    """calculating checksum for isbn 10.
-    This part still is erroneous:
-    Sometimes the 10th digit is greater than 9
-    which would be compensated by replacing the last digit with an 'x'
-    This function is not implemented yet, replacing the last digit with 0.
-    """
-    sum = 0
-    for i in range(10):
-        sum += (int(isbn10[i]) * (i + 1))
-    if sum % 11 == 0:
-        return True
-    return False
-
-
-def convert_datestring(datestring):
+def convert_date_string(datestring):
     return datestring[-2:] + '.' + datestring[-5:-3] + '.' + datestring[:4]
 
 
