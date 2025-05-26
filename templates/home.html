@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Buchkarussell</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #carousel-container {
+      perspective: 1000px;
+      width: 600px;
+      height: 400px;
+      position: relative;
+      margin-top: 20px;
+    }
+
+    #carousel {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      transform-style: preserve-3d;
+      transition: transform 0.1s;
+    }
+
+    .book {
+      position: absolute;
+      width: 120px;
+      height: 180px;
+      left: 50%;
+      top: 50%;
+      transform-style: preserve-3d;
+      margin: -90px 0 0 -60px;
+      transition: transform 0.3s;
+    }
+
+    .book img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    #details {
+      margin-top: 30px;
+      text-align: center;
+      max-width: 600px;
+      min-height: 80px;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <h1>Buchkarussell</h1>
+  <div id="carousel-container">
+    <div id="carousel"></div>
+      {% for book in books %}
+    <div class="book" style="--i:{{book.id}}; background-image: url('/static/images/{{ book.id }}.png');"></div>
+      {% endfor}
+   </div>
+
+
+  <script>
+
+    const carousel = document.getElementById("carousel");
+    const details = document.getElementById("details");
+
+    let angle = 0;
+    let lastX = 0;
+    let dragging = false;
+    let velocity = 0;
+    let animationFrame;
+    const radius = 300;
+
+    // Bücher platzieren
+    function placeBooks() {
+      carousel.innerHTML = "";
+      const step = 360 / {{ count }};
+      {% for book in books %} => {
+        const div = document.createElement("div");
+        div.className = "book";
+        const rot = {{ books.index(book) }} * step;
+        div.style.transform = `rotateY(${rot}deg) translateZ(${radius}px)`;
+        div.innerHTML = `<img src="/static/images/{{ book.id }}.png" alt="{{book.title}}">`;
+        carousel.appendChild(div);
+
+      }
+      {% endfor %}
+      );
+    }
+
+    // Details anzeigen für das Buch mit Rotation ≈ 0°
+    function updateDetails() {
+      const step = 360 / books.length;
+      let index = Math.round(-angle / step) % books.length;
+      if (index < 0) index += books.length;
+      const book = books[index];
+      details.innerHTML = `<h2>${book.title}</h2><p>von ${book.author}</p>`;
+    }
+
+    function render() {
+      carousel.style.transform = `rotateY(${angle}deg)`;
+      updateDetails();
+    }
+
+    function animate() {
+      if (!dragging) {
+        angle += velocity;
+        velocity *= 0.95;
+        if (Math.abs(velocity) < 0.01) velocity = 0;
+      }
+      render();
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    carousel.addEventListener("mousedown", e => {
+      dragging = true;
+      lastX = e.clientX;
+      velocity = 0;
+    });
+
+    window.addEventListener("mousemove", e => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      angle += dx * 0.5;
+      velocity = dx * 0.5;
+      lastX = e.clientX;
+      render();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (dragging) {
+        dragging = false;
+      } else {
+        velocity = 0; // Klick stoppt Bewegung
+      }
+    });
+
+    window.addEventListener("click", () => {
+      if (!dragging) {
+        velocity = 0; // Klick ohne Drag stoppt sofort
+      }
+    });
+
+    placeBooks();
+    animate();
+  </script>
+</body>
+</html>

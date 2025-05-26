@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Buchkarussell</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='carousel.css') }}">
+</head>
+<body>
+ <div id="sidebar_left">
+    <div class="route" id="add_book"><a href=add_book><img src=static/images/typewriter.png alt="Add Book"></a></div>
+    <div class="route" id="add_author"><a href=add_author><img src=static/images/AddAuthor.png alt="Add Author"></a></div>
+    <div class="route" id="delete_book"><a href=delete_book><img src=static/images/delete_book.png alt="Delete Book"></a></div>
+    <div class="route" id="query"></div>
+ </div>
+  <div id="midpack">
+    <div id="plh_1"></div>
+        <div id="titletag">Books<br>Alchemy</div>
+    <div id="plh_2"></div>
+        <div id="carousel-container">
+            <div id="carousel"></div>
+        </div>
+        <div id="plh_3"></div>
+            <div id="Search"></div>
+        <div id="plh_4"></div>
+            <div><button type="button" id="rotate_left">Rotate Left</button><button type="button" id="rotate_right">Rotate Right</button></div>
+  </div>
+  <div id="sidebar_right">
+    <div id="details"></div>
+
+
+
+
+
+  </form>
+
+
+
+
+    </table>
+ </div>
+  <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
+</body>
+</html>
