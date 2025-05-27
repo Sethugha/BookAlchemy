@@ -4,10 +4,13 @@ let lastX = 0;
 let dragging = false;
 let animationFrame;
 const radius = 300;
-let books = [];
+
 
 const carousel = document.getElementById("carousel");
 const details = document.getElementById("details");
+const deletion = document.getElementById("deletion");
+const bookId = document.getElementById("bookId");
+
 
 function placeBooks() {
   carousel.innerHTML = "";
@@ -22,21 +25,27 @@ function placeBooks() {
   });
 }
 
+
 function updateDetails() {
   const step = 360 / books.length;
   let index = Math.round(-angle / step) % books.length;
   if (index < 0) index += books.length;
   const book = books[index];
   book.title = book.title.replace(' (', '</h3>(').replace(')',')<h3>')
+  bookId.value = book.isbn;
   details.innerHTML = `<h3>${book.title}</h3><p>von ${book.author},
   published ${book.publication_year}<br>
-  ISBN ${book.isbn}<br><br></p>`;
+  ISBN ${book.isbn}<br><br></p>`
+  ;
+
 }
 
 function render() {
   carousel.style.transform = `rotateY(${angle}deg)`;
   updateDetails();
 }
+
+
 
 function animate() {
   if (!dragging) {

@@ -14,9 +14,34 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:////{storage_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route('/', methods=['GET','POST'])
+def home():
+    """
+    Route to Home with POST to sort the books
+    following the switches
+    :return: rendered template home.html
+    """
+    if request.method == "POST":
+        sort_order = ''
+        if request.form.get('title_switch'):
+            sort_order = getattr(Book, 'title',None)
+        elif request.form.get('author_switch'):
+            sort_order = getattr(Author, 'name',None)
+        elif request.form.get('year_switch'):
+            sort_order = getattr(Book, 'publication_year',None)
+        if request.form.get('direction'):
+            books = db.session.query(Book.id, Book.isbn, Book.title,
+                             Author.name, Book.author_id,
+                             Book.publication_year).join(Author) \
+                             .order_by(sort_order).all()
+        else:
+            books = db.session.query(Book.id, Book.isbn, Book.title,
+                                     Author.name, Book.author_id,
+                                     Book.publication_year).join(Author) \
+                                     .order_by(sort_order).all()
+        return render_template('index.html', books=books)
+    books = db.session.query(Book).join(Author).all()
+    return render_template('index.html', books=books)
 
 
 @app.route('/api/books')
@@ -33,8 +58,7 @@ def get_books():
     ])
 
 
-
-@app.route('/add_author', methods=['GET', 'POST'])
+@app.route('/add_author', methods=['GET','POST'])
 def add_author():
     if request.method == 'GET':
         return render_template('add_author.html')
@@ -80,13 +104,35 @@ def add_book():
 
 @app.route('/sort',methods=['POST'])
 def sort():
-    books = db.session.query(Book).join(Author).all()
-    pass
+    if request.method == "POST":
+        sort_order = ''
+        if request.form.get('title_switch'):
+            sort_order = 'title'
+        elif request.form.get('author_switch'):
+            sort_order = 'author'
+        elif request.form.get('year_switch'):
+            sort_order = 'publication_year'
+        direction = 'asc'
+        if request.form.get('direction'):
+            direction = 'desc'
+        books = db.session.query(Book.id, Book.isbn, Book.title,
+                                 Author.name, Book.author_id,
+                                 Book.publication_year, Book.rating).join(Author) \
+                                 .order_by(direction(sort_order)).all()
+        return render_template('index.html', books=books)
 
 
-@app.route('/delete_book')
-def delete_book():
-    pass
+@app.route('/delete', methods=['POST'])
+def delete_book_in_view():
+    isbn = request.form.get('bookId')
+    item = db.session.query(Book.id, Book.title).filter(Book.isbn == isbn).one()
+    book_id = item[0]
+    title = item[1]
+    book = Book.query.get(book_id)
+    if book:
+        db.session.delete(book)
+        db.session.commit()
+    return render_template('index.html', message=f"deleted book: {title}")
 
 
 @app.route('/add_bulk', methods=['POST'])

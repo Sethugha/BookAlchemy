@@ -69,20 +69,15 @@ body {
       transition: opacity 0.8s;
     }
 
-    #plh_1 {
-      width: 60%;
-      height: 11%;
-    }
 
-    div {
 
-    }
+
 
     #midpack {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       height: 100vh;
 
       overflow: hidden;
@@ -94,6 +89,7 @@ body {
       align-items: center;
       justify-content: center;
       height: 100vh;
+      padding: 5px;
 
       overflow: hidden;
     }
@@ -103,3 +99,38 @@ body {
       height: 100vh;
 
       }
+
+    #top_area {
+      text-alignment: center;
+      align-items: start;
+      justify-content: center;
+      height: 10vh;
+      margin-top: 2%;
+
+    }
+
+
+    #lower_middle {
+    margin: 5%;
+
+    }
+
+    button {
+        height: 40px;
+        width: 200px;
+        border-radius: 5px;
+    }
+
+    input[type="image"] {
+        border-top: 2px solid white;
+        border-right: 2px solid black;
+        border-bottom: 2px solid black;
+        border-left: 2p solid white;
+    }
+
+    input[type="image"]:hover {
+        border-top: 2px solid black;
+        border-right: 2px solid white;
+        border-bottom: 2px solid white;
+        border-left: 2p solid black;
+    }
