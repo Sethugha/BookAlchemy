@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 
 from data_models import db, Author, Book
 import os
-import handle_csv
+import data_handler as dh
 
 storage_path = f"""{os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                  'data', 'library.db'))}"""
@@ -39,9 +39,9 @@ def home():
                                      Author.name, Book.author_id,
                                      Book.publication_year).join(Author) \
                                      .order_by(sort_order).all()
-        return render_template('index.html', books=books)
+        return render_template('home.html', books=books)
     books = db.session.query(Book).join(Author).all()
-    return render_template('index.html', books=books)
+    return render_template('home.html', books=books, message="To delete this book (ISBN visible below), use 'Delete Book' button")
 
 
 @app.route('/api/books')
@@ -119,7 +119,7 @@ def sort():
                                  Author.name, Book.author_id,
                                  Book.publication_year, Book.rating).join(Author) \
                                  .order_by(direction(sort_order)).all()
-        return render_template('index.html', books=books)
+        return render_template('home.html', books=books)
 
 
 @app.route('/delete', methods=['POST'])
@@ -132,14 +132,50 @@ def delete_book_in_view():
     if book:
         db.session.delete(book)
         db.session.commit()
-    return render_template('index.html', message=f"deleted book: {title}")
+    return render_template('home.html', message=f"Deleted Book: {title}")
 
 
-@app.route('/add_bulk', methods=['POST'])
-def bulk_add_books():
-    booklist = request.form.get('booklist')
-    return booklist
+@app.route('/bulk_import', methods=['POST'])
+def bulk_import_books():
+    bulk_text = request.form.get('booklist')
+    bulk_list = []
+    for item in (bulk_text.split('\r')):
+        parts = item.split(',')
+        bulk_row = {
+                    "title": parts[0].strip(),
+                    "isbn": parts[1],
+                    "author": parts[2],
+                    "publication_year": parts[3],
+                    "img": f'https://covers.openlibrary.org/b/isbn/{parts[1]}-M.jpg'
+                   }
+        bulk_list.append(bulk_row)
+    bulk_log=[]
+    for row in bulk_list:
+        item = db.session.query(Book.id, Book.title).filter(Book.isbn == row['isbn']).one()
+        book_id = item[0]
+        book = Book.query.get(book_id)
+        if book:
+            bulk_log.append(f"ISBN {row['isbn']} already in database. Bulk row discarded.")
+            continue
+        try:
+            author = db.session.query(Author).filter(Author.name == row['author']).one()
+        except:
+            author = Author(name=row['author'])
+            db.session.add(author)
+            db.session.commit()
+            bulk_log.append(f"Added Author {row['author']} into authors table.")
+        author = db.session.query(Author).filter(Author.name == row['author']).one()
+        book = Book(title=row['title'], isbn=row['isbn'], publication_year=row['publication_year'], author_id=author.id)
+        try:
+            db.session.add(book)
+            db.session.commit()
+            bulk_log.append(f"Added book {book.title}, ISBN {book.isbn} from {author.name} successfully added to books.")
+        except Exception as e:
+            db.session.rollback()
+            bulk_log.append(f"Exception {e} occured. Rollback initiated, row['title'] discarded.")
+            continue
 
+        return render_template('add_book.html', message=bulk_log)
 
 
 def convert_date_string(datestring):

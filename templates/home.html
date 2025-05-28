@@ -2,42 +2,75 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Buchkarussell</title>
+  <title>The Roundabout Library</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='carousel.css') }}">
 </head>
 <body>
- <div id="sidebar_left">
+
+  <!-- LEFT PANEL -->
+  <div id="left-panel">
     <div class="route" id="add_book"><a href=add_book><img src=static/images/typewriter.png alt="Add Book"></a></div>
     <div class="route" id="add_author"><a href=add_author><img src=static/images/AddAuthor.png alt="Add Author"></a></div>
-    <div class="route" id="delete_book"><a href=delete_book><img src=static/images/delete_book.png alt="Delete Book"></a></div>
-    <div class="route" id="query"></div>
- </div>
-  <div id="midpack">
-    <div id="plh_1"></div>
-        <div id="titletag">Books<br>Alchemy</div>
-    <div id="plh_2"></div>
-        <div id="carousel-container">
-            <div id="carousel"></div>
-        </div>
-        <div id="plh_3"></div>
-            <div id="Search"></div>
-        <div id="plh_4"></div>
-            <div><button type="button" id="rotate_left">Rotate Left</button><button type="button" id="rotate_right">Rotate Right</button></div>
+    <input type="image" src="static/images/delete_book.png" alt="delete" id="deletion" form="idForm"/>
+
   </div>
-  <div id="sidebar_right">
-    <div id="details"></div>
 
+  <!-- CENTER PANEL -->
+  <div id="center-panel">
+    <div id="switches">
+      <div class="slider-row">
+        <div class="switch" data-group="row1">1</div>
+        <div class="switch" data-group="row1">2</div>
+        <div class="switch" data-group="row1">3</div>
+      </div>
+      <div class="slider-row">
+        <div class="switch" data-group="row2">1</div>
+        <div class="switch" data-group="row2">2</div>
+        <div class="switch" data-group="row2">3</div>
+      </div>
+      <div class="slider-row">
+        <div class="switch" data-group="row3">1</div>
+        <div class="switch" data-group="row3">2</div>
+        <div class="switch" data-group="row3">3</div>
+      </div>
+      <div class="single-switch">Single Switch</div>
+    </div>
 
+    <div id="carousel-container">
+      <div id="carousel">
+        <!-- Your carousel goes here -->
+      </div>
+    </div>
 
+    <div id="carousel-controls">
+      <button class="carousel-button" id="rotate-left">◀ Rotate Left</button>
+      <button class="carousel-button" id="rotate-right">▶ Rotate Right</button>
+    </div>
+    <p>You can capture and drag the wheel with the mouse</p>
+    <label for="idForm">{{ message }}</label>
+    <form id="idForm" action="/delete" method="POST" type="hidden">
+    <input type="number" name="bookId" id="bookId" type="hidden">
 
+    </form>
+  </div>
 
-  </form>
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div id="details">
 
-
-
-
-    </table>
- </div>
+    </div>
+    <div id="search-form">
+      <form id="search_Form" action="/search" method="POST">
+        <input type="text" placeholder="Search for Title">
+        <input type="text" placeholder="Search for Author">
+        <input type="text" placeholder="Search a Pub. Year">
+        <input type="text" placeholder="Search for ISBN">
+        <input type="text" placeholder="Search ...">
+        <input type="text" placeholder="Search ..."><br>
+        <input type="submit" value="Search">
+      </form>
+    </div>
+  </div>
   <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
 </body>
 </html>

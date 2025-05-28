@@ -1,24 +1,31 @@
 body {
+      display: flex;
+      justify-content: center;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f5f7fa;
       margin: 0;
       padding: 40px;
       color: #333;
+      width: 90%;
     }
 
     .container {
       display: flex;
-      justify-content: space-around;
+      flex-direction: row;
+      border: 1px solid red;
+      justify-content: center;
       gap: 40px;
-      max-width: 900px;
+      width:90%;
       margin: auto;
     }
 
     .panel {
-      background-color: #ffffff;
+      border: 1px solid red;
+      background-color: #fefefe;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       padding: 30px;
+      width: 500px;
       flex: 1;
     }
 
@@ -26,6 +33,7 @@ body {
       margin-top: 0;
       font-size: 20px;
       color: #222;
+      padding: 5%;
     }
 
     .form-group {
@@ -38,7 +46,10 @@ body {
       font-weight: 500;
     }
 
+    #manual_input {
+      padding-left: 20%;
 
+    }
 
     input:focus,
     textarea:focus {
@@ -48,6 +59,7 @@ body {
     }
 
     textarea {
+      width: 90%;
       resize: vertical;
       min-height: 300px;
       font-family: monospace;

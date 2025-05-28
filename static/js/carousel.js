@@ -4,12 +4,45 @@ let lastX = 0;
 let dragging = false;
 let animationFrame;
 const radius = 300;
-
+let rotateInterval = null;
 
 const carousel = document.getElementById("carousel");
 const details = document.getElementById("details");
-const deletion = document.getElementById("deletion");
-const bookId = document.getElementById("bookId");
+const leftBtn = document.getElementById("rotate-left");
+const rightBtn = document.getElementById("rotate-right");
+
+function rotateCarousel(direction) {
+    angle += direction * 1; // speed: 1 deg per tick
+    carousel.style.transform = `rotateY(${currentAngle}deg)`;
+  }
+
+  function startRotation(direction) {
+    stopRotation(); // in case one is already running
+    rotateInterval = setInterval(() => rotateCarousel(direction), 16); // ~60 FPS
+
+    // Visual cue (optional)
+    if (direction === -1) {
+      leftBtn.disabled = false;
+      rightBtn.disabled = true;
+    } else {
+      leftBtn.disabled = true;
+      rightBtn.disabled = false;
+    }
+  }
+
+  function stopRotation() {
+    clearInterval(rotateInterval);
+    rotateInterval = null;
+    leftBtn.disabled = false;
+    rightBtn.disabled = false;
+  }
+// Start on mouse down
+  leftBtn.addEventListener("mousedown", () => startRotation(-1));
+  rightBtn.addEventListener("mousedown", () => startRotation(1));
+
+  // Stop on mouse up anywhere
+  document.addEventListener("mouseup", () => stopRotation());
+
 
 
 function placeBooks() {

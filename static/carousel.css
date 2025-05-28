@@ -1,17 +1,83 @@
-body {
-      margin: 0;
-      background-color: black;
-      color: white;
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      width: 100vw;
-      overflow: hidden;
+    * {
+      box-sizing: border-box;
     }
 
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1900px;
+      height: 950px;
+      display: flex;
+      font-family: sans-serif;
+    }
 
+    /* LEFT PANEL - 3 Image Buttons */
+    #left-panel {
+      width: 300px;
+      background: #f0f0f0;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      border-right: 1px solid #ccc;
+    }
+
+    .image-button {
+      width: 260px;
+      height: 80px;
+      background-color: #ccc;
+      border: 2px solid #aaa;
+      background-image: url('your-image.png');
+      background-size: cover;
+      cursor: pointer;
+    }
+
+    /* CENTER PANEL */
+    #center-panel {
+      width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+    }
+
+    /* Switches */
+    #switches {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .slider-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .switch {
+      width: 40px;
+      height: 30px;
+      background: #ddd;
+      border: 1px solid #aaa;
+      text-align: center;
+      line-height: 30px;
+      cursor: pointer;
+    }
+
+    .single-switch {
+      width: 160px;
+      height: 30px;
+      background: #ddd;
+      border: 1px solid #aaa;
+      text-align: center;
+      line-height: 30px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Carousel */
     #carousel-container {
       perspective: 1000px;
       width: 1200px;
@@ -37,7 +103,7 @@ body {
       top: 50%;
       transform-style: preserve-3d;
       margin: -90px 0 0 -60px;
-      transition: transform 0.3s;
+      transition: transform 0s;
     }
 
     .book img {
@@ -47,90 +113,62 @@ body {
       box-shadow: 0 0 10px rgba(255,255,255,0.3);
     }
 
-    #titletag {
-      color: rgb(46,33,2);
-      width: 180px;
-      height: 65px;
-      margin-top: 14px;
-      margin-right: 10px;
-      padding-bottom: 5px;
-      background-color: rgb(230,226,218);
-      text-align: center;
-      font-size: 1.5em;
-      font-weight: bolder;
+    #carousel-controls {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .carousel-button {
+      width: 120px;
+      height: 40px;
+      background: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .carousel-button:active {
+      width: 120px;
+      height: 40px;
+      background: white;
+      color: #333;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* RIGHT PANEL - Text + Search Form */
+    #right-panel {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      background-color: #f9f9f9;
     }
 
     #details {
-
+      color: black;
       margin-bottom: 30px;
       text-align: left;
-      padding: 1%;
-      min-height: 80px;
+      padding: 5%;
+      height: 350px;
       transition: opacity 0.8s;
     }
 
-
-
-
-
-    #midpack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      height: 100vh;
-
-      overflow: hidden;
+    #info-text {
+      height: calc(950px / 3);
+      padding: 15px;
+      border-bottom: 1px solid #ccc;
     }
 
-    #sidebar_left {
+    #search-form {
+      flex: 1;
+      padding: 15px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: space-evenly;
+    }
+
+    #search-form input {
       padding: 5px;
-
-      overflow: hidden;
-    }
-
-    #sidebar_right {
-      width: 400px;
-      height: 100vh;
-
-      }
-
-    #top_area {
-      text-alignment: center;
-      align-items: start;
-      justify-content: center;
-      height: 10vh;
-      margin-top: 2%;
-
-    }
-
-
-    #lower_middle {
-    margin: 5%;
-
-    }
-
-    button {
-        height: 40px;
-        width: 200px;
-        border-radius: 5px;
-    }
-
-    input[type="image"] {
-        border-top: 2px solid white;
-        border-right: 2px solid black;
-        border-bottom: 2px solid black;
-        border-left: 2p solid white;
-    }
-
-    input[type="image"]:hover {
-        border-top: 2px solid black;
-        border-right: 2px solid white;
-        border-bottom: 2px solid white;
-        border-left: 2p solid black;
+      margin-bottom: 10px;
     }
