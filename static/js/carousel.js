@@ -5,6 +5,10 @@ let dragging = false;
 let animationFrame;
 const radius = 300;
 let rotateInterval = null;
+const titlesort = document.getElementById('sw_title');
+const authorsort = document.getElementById('sw_author');
+const yearsort = document.getElementById('sw_year');
+const sort_dir = document.getElementById('desc') && 'desc';
 
 const carousel = document.getElementById("carousel");
 const details = document.getElementById("details");
@@ -119,6 +123,12 @@ fetch('/api/books')
   .then(res => res.json())
   .then(data => {
     books = data;
+    if (titlesort) {books.sort((a, b) => a.title.localeCompare(b.title))};
+    if (titlesort && sort_dir) {books.sort((a, b) => b.title.localeCompare(a.title))}
+    if (authorsort) {books.sort((a, b) => a.author.localeCompare(b.author));}
+    if (authorsort && sort_dir) {books.sort((a, b) => b.author.localeCompare(a.author));}
+    if (yearsort) {books.sort((a, b) => a.publication_year - b.publication_year);}
+    if (yearsort && sort_dir) {books.sort((a, b) => b.publication_year - a.publication_year);}
     placeBooks();
     setupInteraction();
     animate();

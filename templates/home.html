@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>The Roundabout Library</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='carousel.css') }}">
+
 </head>
 <body>
 
@@ -18,24 +19,22 @@
   <!-- CENTER PANEL -->
   <div id="center-panel">
     <div id="switches">
-      <div class="slider-row">
-        <div class="switch" data-group="row1">1</div>
-        <div class="switch" data-group="row1">2</div>
-        <div class="switch" data-group="row1">3</div>
-      </div>
-      <div class="slider-row">
-        <div class="switch" data-group="row2">1</div>
-        <div class="switch" data-group="row2">2</div>
-        <div class="switch" data-group="row2">3</div>
-      </div>
-      <div class="slider-row">
-        <div class="switch" data-group="row3">1</div>
-        <div class="switch" data-group="row3">2</div>
-        <div class="switch" data-group="row3">3</div>
-      </div>
-      <div class="single-switch">Single Switch</div>
-    </div>
 
+      <div class="left-half">
+        <input type="image" class="image-input" src="static/images/sorting_Seth.png" alt="sort" id="sort" form="sortForm">
+        <p>sort</p>
+
+
+      </div>
+      <form class="right-half" action="/sort" method="POST" id="sortForm">
+
+        <label><input type="checkbox" id="sw_title" name="sw_title"> Title</label>
+        <label><input type="checkbox" id="sw_author" name="sw_author"> Author</label>
+        <label><input type="checkbox" id="sw_year" name="sw_year"> Publication Year</label>
+        <label><input type="checkbox" id="desc" name="desc"> Desc</label>
+        </form>
+      </form>
+    </div>
     <div id="carousel-container">
       <div id="carousel">
         <!-- Your carousel goes here -->

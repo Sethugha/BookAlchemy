@@ -1,51 +1,40 @@
 from flask import Flask,render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import joinedload
-
+from sqlalchemy import desc
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from data_models import db, Author, Book
 import os
 import data_handler as dh
 
+#store absolute path to database file
 storage_path = f"""{os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                 'data', 'library.db'))}"""
+                                                  'data', 'library.db'))}"""
 
+DEL_MSG="To delete this book (ISBN visible below), use 'Delete Book' button"
 
+#create Flask instance
 app = Flask(__name__)
+#configure database
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:////{storage_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route('/', methods=['GET','POST'])
+
+@app.route('/', methods=['GET'])
 def home():
     """
-    Route to Home with POST to sort the books
-    following the switches
+    Route to Home
     :return: rendered template home.html
     """
-    if request.method == "POST":
-        sort_order = ''
-        if request.form.get('title_switch'):
-            sort_order = getattr(Book, 'title',None)
-        elif request.form.get('author_switch'):
-            sort_order = getattr(Author, 'name',None)
-        elif request.form.get('year_switch'):
-            sort_order = getattr(Book, 'publication_year',None)
-        if request.form.get('direction'):
-            books = db.session.query(Book.id, Book.isbn, Book.title,
-                             Author.name, Book.author_id,
-                             Book.publication_year).join(Author) \
-                             .order_by(sort_order).all()
-        else:
-            books = db.session.query(Book.id, Book.isbn, Book.title,
-                                     Author.name, Book.author_id,
-                                     Book.publication_year).join(Author) \
-                                     .order_by(sort_order).all()
-        return render_template('home.html', books=books)
+
     books = db.session.query(Book).join(Author).all()
-    return render_template('home.html', books=books, message="To delete this book (ISBN visible below), use 'Delete Book' button")
+    return render_template('home.html', books=books, message=DEL_MSG)
 
 
 @app.route('/api/books')
 def get_books():
+    """Retrieves all books from the database. Used in js
+    to fetch all books."""
     books = db.session.query(Book).join(Author).all()
     return jsonify([
         {
@@ -104,22 +93,24 @@ def add_book():
 
 @app.route('/sort',methods=['POST'])
 def sort():
-    if request.method == "POST":
-        sort_order = ''
-        if request.form.get('title_switch'):
-            sort_order = 'title'
-        elif request.form.get('author_switch'):
-            sort_order = 'author'
-        elif request.form.get('year_switch'):
-            sort_order = 'publication_year'
-        direction = 'asc'
-        if request.form.get('direction'):
-            direction = 'desc'
-        books = db.session.query(Book.id, Book.isbn, Book.title,
-                                 Author.name, Book.author_id,
-                                 Book.publication_year, Book.rating).join(Author) \
-                                 .order_by(direction(sort_order)).all()
-        return render_template('home.html', books=books)
+    if request.form.get('sw_title'):
+        sort_by = getattr(Book, 'title', None)
+    elif request.form.get('sw_author'):
+        sort_by = getattr(Author, 'name', None)
+    elif request.form.get('sw_year'):
+        sort_by = getattr(Book, 'publication_year', None)
+    if request.form.get('desc'):
+        books = db.session.query(Book.id, Book.author_id, Book.title,Book.isbn,
+                                 Book.publication_year,Author.name).join(Author, \
+                                 Book.author_id == Author.id) \
+                                 .order_by(desc(sort_by)).all()
+    else:
+        books = db.session.query(Book.id, Book.author_id, Book.title,Book.isbn,
+                                 Book.publication_year,Author.name).join(Author, \
+                                 Book.author_id == Author.id) \
+                                 .order_by(sort_by).all()
+
+    return render_template('home.html', books=books, message=DEL_MSG)
 
 
 @app.route('/delete', methods=['POST'])
@@ -149,6 +140,8 @@ def bulk_import_books():
                     "img": f'https://covers.openlibrary.org/b/isbn/{parts[1]}-M.jpg'
                    }
         bulk_list.append(bulk_row)
+    return bulk_list
+    '''
     bulk_log=[]
     for row in bulk_list:
         item = db.session.query(Book.id, Book.title).filter(Book.isbn == row['isbn']).one()
@@ -176,7 +169,7 @@ def bulk_import_books():
             continue
 
         return render_template('add_book.html', message=bulk_log)
-
+    '''
 
 def convert_date_string(datestring):
     return datestring[-2:] + '.' + datestring[-5:-3] + '.' + datestring[:4]

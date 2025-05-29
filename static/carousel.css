@@ -45,37 +45,47 @@
 
     /* Switches */
     #switches {
+      width: 500px;
+      height: 250px;
+      margin: 0 auto; /* center horizontally */
       display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin-bottom: 20px;
+      border: 2px solid #888; /* just for visibility */
+      padding: 20px;
+      box-sizing: border-box;
     }
 
-    .slider-row {
+    .left-half, .right-half {
+      flex: 1;
       display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .left_half {
+      flex-direction: column;
+      justify-content; center;
       gap: 10px;
     }
 
-    .switch {
-      width: 40px;
-      height: 30px;
-      background: #ddd;
-      border: 1px solid #aaa;
-      text-align: center;
-      line-height: 30px;
+    .right-half {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .image-input {
+      background: none;
+      border: none;
       cursor: pointer;
     }
 
-    .single-switch {
-      width: 160px;
-      height: 30px;
-      background: #ddd;
-      border: 1px solid #aaa;
-      text-align: center;
-      line-height: 30px;
-      cursor: pointer;
-      margin-top: 10px;
+    .image-input img {
+    width: 200px; /* or whatever size you want */
+    height: 150px;
     }
+
+
+
 
     /* Carousel */
     #carousel-container {
@@ -171,4 +181,13 @@
     #search-form input {
       padding: 5px;
       margin-bottom: 10px;
+    }
+
+    #sort {
+      width: 60px;
+      height: 40px;
+      background: #333;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
