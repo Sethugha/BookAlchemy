@@ -5,7 +5,8 @@ from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from data_models import db, Author, Book
 import os
-import data_handler as dh
+
+
 
 #store absolute path to database file
 storage_path = f"""{os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -20,16 +21,45 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:////{storage_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
     """
-    Route to Home
-    :return: rendered template home.html
+    Route to home page with POST to sort the books by title, author or year if switched.
+    :return:
     """
-
     books = db.session.query(Book).join(Author).all()
     return render_template('home.html', books=books, message=DEL_MSG)
 
+    if request.method == 'POST':
+        sort_by = ''
+        if request.form.get('sw_title'):
+            sort_by = getattr(Book, 'title', None)
+        elif request.form.get('sw_author'):
+            sort_by = getattr(Author, 'name', None)
+        elif request.form.get('sw_year'):
+            sort_by = getattr(Book, 'publication_year', None)
+        if request.form.get('desc'):
+            books = db.session.query(Book.id, Book.author_id, Book.title,Book.isbn,
+                                     Book.publication_year,Author.name).join(Author, \
+                                     Book.author_id == Author.id) \
+                                     .order_by(desc(sort_by)).all()
+        else:
+            books = db.session.query(Book.id, Book.author_id, Book.title,Book.isbn,
+                                     Book.publication_year,Author.name).join(Author, \
+                                     Book.author_id == Author.id) \
+                                     .order_by(sort_by).all()
+
+    books = jsonify([
+        {
+            "title": book.title,
+            "author": book.author_id,
+            "publication_year": book.publication_year,
+            "isbn": book.isbn,
+            "img": f"static/images/{book.isbn}.png",
+            "face": f"static/images/Portraits/{book.author_id}.png"
+        } for book in books
+    ])
+    return render_template('home.html', books=books, message=DEL_MSG)
 
 @app.route('/api/books')
 def get_books():
@@ -42,7 +72,8 @@ def get_books():
             "author": book.author.name,
             "publication_year": book.publication_year,
             "isbn": book.isbn,
-            "img": f"static/images/{book.isbn}.png"
+            "img": f"static/images/{book.isbn}.png",
+            "face": f"static/images/Portraits/{book.author_id}.png"
         } for book in books
     ])
 
@@ -91,8 +122,11 @@ def add_book():
             return render_template('add_book.html', message=f"Error: Exception {e} occured. Rollback initiated.")
 
 
-@app.route('/sort',methods=['POST'])
+@app.route('/sort',methods=['GET','POST'])
 def sort():
+    if request.method == 'GET':
+        books = db.session.query(Book).join(Author).all()
+        return render_template('home.html', books=books, message=DEL_MSG)
     if request.form.get('sw_title'):
         sort_by = getattr(Book, 'title', None)
     elif request.form.get('sw_author'):
@@ -110,6 +144,16 @@ def sort():
                                  Book.author_id == Author.id) \
                                  .order_by(sort_by).all()
 
+    books = jsonify([
+        {
+            "title": book.title,
+            "author": book.author_id,
+            "publication_year": book.publication_year,
+            "isbn": book.isbn,
+            "img": f"static/images/{book.isbn}.png",
+            "face": f"static/images/Portraits/{book.author_id}.png"
+        } for book in books
+    ])
     return render_template('home.html', books=books, message=DEL_MSG)
 
 
@@ -126,50 +170,40 @@ def delete_book_in_view():
     return render_template('home.html', message=f"Deleted Book: {title}")
 
 
-@app.route('/bulk_import', methods=['POST'])
-def bulk_import_books():
-    bulk_text = request.form.get('booklist')
-    bulk_list = []
-    for item in (bulk_text.split('\r')):
-        parts = item.split(',')
-        bulk_row = {
-                    "title": parts[0].strip(),
-                    "isbn": parts[1],
-                    "author": parts[2],
-                    "publication_year": parts[3],
-                    "img": f'static/images/{parts[1]}.png'
-                   }
-        bulk_list.append(bulk_row)
-    return bulk_list
-    '''
-    bulk_log=[]
-    for row in bulk_list:
-        item = db.session.query(Book.id, Book.title).filter(Book.isbn == row['isbn']).one()
-        book_id = item[0]
-        book = Book.query.get(book_id)
-        if book:
-            bulk_log.append(f"ISBN {row['isbn']} already in database. Bulk row discarded.")
-            continue
-        try:
-            author = db.session.query(Author).filter(Author.name == row['author']).one()
-        except:
-            author = Author(name=row['author'])
-            db.session.add(author)
-            db.session.commit()
-            bulk_log.append(f"Added Author {row['author']} into authors table.")
-        author = db.session.query(Author).filter(Author.name == row['author']).one()
-        book = Book(title=row['title'], isbn=row['isbn'], publication_year=row['publication_year'], author_id=author.id)
-        try:
-            db.session.add(book)
-            db.session.commit()
-            bulk_log.append(f"Added book {book.title}, ISBN {book.isbn} from {author.name} successfully added to books.")
-        except Exception as e:
-            db.session.rollback()
-            bulk_log.append(f"Exception {e} occured. Rollback initiated, row['title'] discarded.")
-            continue
+@app.route('/search', methods=['POST'])
+def search():
+    """
+    Route to search books with POST and any search term containing title, author or year
+    :return:
+    """
+    f_title=request.form.get('find_title')
+    f_author=request.form.get('find_author')
+    f_year=request.form.get('find_year')
+    f_isbn=request.form.get('find_isbn')
+    if f_author:
+        author = db.session.query(Author).filter(Author.name.contains('f_author')) \
+                                              .first()
+        books = db.session.query(Book).filter(Book.author_id == author.id) \
+                                              .all()
+        if books:
+            return render_template("home.html", books=books)
 
-        return render_template('add_book.html', message=bulk_log)
-    '''
+    elif f_title:
+        books = db.session.query(Book).filter(Book.title.contains('%' + 'f_title' + '%')) \
+                                              .all()
+        if books:
+            return render_template("home.html", books=books)
+        elif f_year:
+            range_chk = f_year.split('-')
+            if range_chk[1]:
+                books = db.session.query(Book).filter(Book.publication_year.between(range_chk[0], range_chk[1])) \
+                                                     .all()
+                if books:
+                    return render_template("home.html", books=books)
+            books = db.session.query(Book).filter(Book.publication_year == f_year).all()
+            if books:
+                return render_template("home.html", books=books)
+
 
 def convert_date_string(datestring):
     return datestring[-2:] + '.' + datestring[-5:-3] + '.' + datestring[:4]

@@ -69,6 +69,8 @@
       background: none;
       border: none;
       cursor: pointer;
+      width: 50%;
+      height: 50%;
     }
 
     .image-input img {
@@ -153,12 +155,14 @@
       margin-bottom: 30px;
       text-align: left;
       padding: 5%;
-      height: 350px;
+      height: 250px;
       transition: opacity 0.8s;
     }
 
-    #info-text {
-      height: calc(950px / 3);
+    .img-container {
+      height: 400px;
+      width: 250px;
+
       padding: 15px;
       border-bottom: 1px solid #ccc;
     }

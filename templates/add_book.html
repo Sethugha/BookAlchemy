@@ -28,13 +28,15 @@
         <input type="text" id="author" name="author" placeholder="Full Name"><br><br>
         <input type="submit" value="Add Book">
         </form>
-           <a href="/">Home</a>
+
        </div>
+        <h3>{{ message }}</h3>
+        <a href="/">Home</a>
     </div>
 
 
     <!-- Bulk CSV Input Panel -->
-    <div class="panel">
+    <div class="panel" style="display: none;">
        <form id="bulk" action="/bulk_import" method="POST">
          <label for="booklist"><h2>Bulk Input (CSV)</h2></label>
          <textarea name="booklist" id="booklist" form="bulk"

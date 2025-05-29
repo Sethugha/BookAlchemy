@@ -14,6 +14,7 @@ const carousel = document.getElementById("carousel");
 const details = document.getElementById("details");
 const leftBtn = document.getElementById("rotate-left");
 const rightBtn = document.getElementById("rotate-right");
+const portrait = document.getElementById("portrait");
 
 function rotateCarousel(direction) {
     angle += direction * 1; // speed: 1 deg per tick
@@ -72,7 +73,9 @@ function updateDetails() {
   bookId.value = book.isbn;
   details.innerHTML = `<h3>${book.title}</h3><p>von ${book.author},
   published ${book.publication_year}<br>
-  ISBN ${book.isbn}<br><br></p>`
+  ISBN ${book.isbn}<br><br></p>`;
+  portrait.innerHTML = `<img src="${book.face}" alt="${book.author}">`;
+
   ;
 
 }

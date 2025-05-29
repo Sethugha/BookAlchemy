@@ -55,15 +55,14 @@
 
   <!-- RIGHT PANEL -->
   <div id="right-panel">
-    <div id="details">
-
-    </div>
+    <div id="details"></div>
+    <div class="img-container" id="portrait"></div>
     <div id="search-form">
       <form id="search_Form" action="/search" method="POST">
-        <input type="text" placeholder="Search for Title">
-        <input type="text" placeholder="Search for Author">
-        <input type="text" placeholder="Search a Pub. Year">
-        <input type="text" placeholder="Search for ISBN">
+        <input type="text" id="find_title" placeholder="Search for Title">
+        <input type="text" id="find_author" placeholder="Search for Author">
+        <input type="number" id="find_year" placeholder="Search a Pub. Year">
+        <input type="text"  id="find_isbn" placeholder="Search for ISBN">
         <input type="text" placeholder="Search ...">
         <input type="text" placeholder="Search ..."><br>
         <input type="submit" value="Search">
