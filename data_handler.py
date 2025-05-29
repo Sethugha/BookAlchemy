@@ -3,7 +3,7 @@ import requests
 import os
 from tkinter import *
 from PIL import ImageTk, Image
-
+import urllib
 
 def load_csv(file, has_header):
     """
@@ -47,16 +47,3 @@ def add_book_to_database(book, isbn):
     except Exception as e:
         db.session.rollback()
         return f"Book insertion failed, see {e}"
-
-
-def retrieve_book_cover_from_url(url):
-    im = Image.open(requests.get(url, stream=True).raw)
-    return im
-
-
-def main():
-    im = retrieve_book_cover_from_url("https://covers.openlibrary.org/b/isbn/9798893540673-M.jpg")
-    im
-
-if __name__ == '__main__':
-    main()

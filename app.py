@@ -42,7 +42,7 @@ def get_books():
             "author": book.author.name,
             "publication_year": book.publication_year,
             "isbn": book.isbn,
-            "img": f"static/images/{book.id}.png"
+            "img": f"static/images/{book.isbn}.png"
         } for book in books
     ])
 
@@ -137,7 +137,7 @@ def bulk_import_books():
                     "isbn": parts[1],
                     "author": parts[2],
                     "publication_year": parts[3],
-                    "img": f'https://covers.openlibrary.org/b/isbn/{parts[1]}-M.jpg'
+                    "img": f'static/images/{parts[1]}.png'
                    }
         bulk_list.append(bulk_row)
     return bulk_list

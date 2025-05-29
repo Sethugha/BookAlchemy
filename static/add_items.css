@@ -12,7 +12,7 @@ body {
     .container {
       display: flex;
       flex-direction: row;
-      border: 1px solid red;
+
       justify-content: center;
       gap: 40px;
       width:90%;
@@ -20,8 +20,8 @@ body {
     }
 
     .panel {
-      border: 1px solid red;
-      background-color: #fefefe;
+      border: 1px solid black;
+      background-color: #C0C0C0;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       padding: 30px;
