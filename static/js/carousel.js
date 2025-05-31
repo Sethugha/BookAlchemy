@@ -1,3 +1,4 @@
+
 let angle = 0;
 let velocity = 0;
 let lastX = 0;
@@ -5,10 +6,7 @@ let dragging = false;
 let animationFrame;
 const radius = 300;
 let rotateInterval = null;
-const titlesort = document.getElementById('sw_title');
-const authorsort = document.getElementById('sw_author');
-const yearsort = document.getElementById('sw_year');
-const sort_dir = document.getElementById('desc') && 'desc';
+
 
 const carousel = document.getElementById("carousel");
 const details = document.getElementById("details");
@@ -53,6 +51,7 @@ function rotateCarousel(direction) {
 function placeBooks() {
   carousel.innerHTML = "";
   const step = 360 / books.length;
+  //console.log(books);
   books.forEach((book, i) => {
     const div = document.createElement("div");
     div.className = "book";
@@ -69,15 +68,15 @@ function updateDetails() {
   let index = Math.round(-angle / step) % books.length;
   if (index < 0) index += books.length;
   const book = books[index];
-  book.title = book.title.replace(' (', '</h3>(').replace(')',')<h3>')
+  book.title = book.title;
   bookId.value = book.isbn;
-  details.innerHTML = `<h3>${book.title}</h3><p>von ${book.author},
-  published ${book.publication_year}<br>
-  ISBN ${book.isbn}<br><br></p>`;
-  portrait.innerHTML = `<img src="${book.face}" alt="${book.author}">`;
 
-  ;
-
+  document.getElementById('edit_title').placeholder = book.title;
+  document.getElementById('edit_author').placeholder = book.author;
+  document.getElementById('edit_isbn').placeholder = book.isbn;
+  document.getElementById('edit_year').placeholder = book.publication_year;
+  document.getElementById('edit_name').placeholder = book.author;
+  portrait.innerHTML = `<img src="${book.face}" alt="${book.author}" width="200px" height="auto" >`;
 }
 
 function render() {
@@ -122,16 +121,20 @@ function setupInteraction() {
   });
 }
 
+
+
+
+
 fetch('/api/books')
   .then(res => res.json())
   .then(data => {
     books = data;
-    if (titlesort) {books.sort((a, b) => a.title.localeCompare(b.title))};
-    if (titlesort && sort_dir) {books.sort((a, b) => b.title.localeCompare(a.title))}
-    if (authorsort) {books.sort((a, b) => a.author.localeCompare(b.author));}
-    if (authorsort && sort_dir) {books.sort((a, b) => b.author.localeCompare(a.author));}
-    if (yearsort) {books.sort((a, b) => a.publication_year - b.publication_year);}
-    if (yearsort && sort_dir) {books.sort((a, b) => b.publication_year - a.publication_year);}
+    const urlPart = window.location.href;
+    if (urlPart.includes("sort=title")) {books.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (urlPart.includes("sort=author")) {books.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (urlPart.includes("sort=publication_year")) {books.sort((a, b) => a.publication_year - b.publication_year);}
+    if (urlPart.includes("desc=on")) {books.reverse();}
+    console.log(books);
     placeBooks();
     setupInteraction();
     animate();

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='add_items.css') }}">
   </head>
   <body>
-  <div class="container">
+  <div class="left-panel"></div>
     <!-- Manual Input Panel -->
     <div class="panel">
        <div id="manual_input">
@@ -24,13 +24,12 @@
         </form>
 
        </div>
-        <h3>{{ message }}</h3>
-         <a href="/">Home</a>
-    </div>
 
-    </div>
+  </div>
+    <h3>{{ message }}</h3>
 
-
-    <nav
-  </body>
+    <nav class="universal">
+        <a href="/">Home</a>
+    </nav>
+</body>
 </html>

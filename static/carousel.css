@@ -11,39 +11,79 @@
       font-family: sans-serif;
     }
 
+    .container {
+      display: flex;
+      flex-direction: row;
+
+      justify-content: center;
+      gap: 40px;
+      width:60%;
+      margin: auto;
+    }
+
+    .panel {
+      border: 1px solid black;
+      background-color: #C0C0C0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 30px;
+      width: 50%;
+      flex: 1;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #222;
+      padding: 5%;
+    }
+
+
+
+
     /* LEFT PANEL - 3 Image Buttons */
-    #left-panel {
+    .left-panel {
       width: 300px;
-      background: #f0f0f0;
+      background-image: linear-gradient(to left, #20265e, #435487, #6c84af, #9cb7d7, #d4ebff);
       padding: 20px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
-      border-right: 1px solid #ccc;
+
     }
 
 
 
     /* CENTER PANEL */
-    #center-panel {
+    .center-panel {
+      color: white;
       width: 1200px;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
-      border-right: 1px solid #ccc;
+      background-image: linear-gradient(to right, #20265e, #0a2451, #002043, #001c35, #001626, #000f18, #000305, #00101a, #00172b, #001d3c, #00224e, #0b255e, #2a256b);
     }
 
     /* Switches */
+
     #switches {
+
       width: 500px;
       height: 250px;
       margin: 0 auto; /* center horizontally */
       display: flex;
-      border: 2px solid #888; /* just for visibility */
+
       padding: 20px;
       box-sizing: border-box;
+    }
+
+
+    .switch.active {
+      background-color: #4488ff;
+      color: white;
+      font-weight: bold;
     }
 
     .left-half, .right-half {
@@ -51,11 +91,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
+
     }
 
     .left_half {
       flex-direction: column;
       justify-content; center;
+      width: 100%;
       gap: 10px;
     }
 
@@ -69,13 +111,12 @@
       background: none;
       border: none;
       cursor: pointer;
-      width: 50%;
-      height: 50%;
+
     }
 
     .image-input img {
-    width: 200px; /* or whatever size you want */
-    height: 150px;
+    width: 150px; /* or whatever size you want */
+    height: auto;
     }
 
 
@@ -130,6 +171,7 @@
       background: #333;
       color: white;
       border: none;
+      border-radius: 5px, 15px, 15px,5px;
       cursor: pointer;
     }
 
@@ -143,15 +185,16 @@
     }
 
     /* RIGHT PANEL - Text + Search Form */
-    #right-panel {
+    .right-panel {
       width: 400px;
       display: flex;
       flex-direction: column;
-      background-color: #f9f9f9;
+      background-image: linear-gradient(to right, #2a256b, #465593, #6c86b9, #9bb8dc, #d4ebff);
     }
 
     #details {
       color: black;
+
       margin-bottom: 30px;
       text-align: left;
       padding: 5%;
@@ -159,12 +202,51 @@
       transition: opacity 0.8s;
     }
 
-    .img-container {
-      height: 400px;
-      width: 250px;
+    #book_edit, author_edit {
+        border: none;
+        outline: none;
+        width: 100%;
+    }
 
-      padding: 15px;
-      border-bottom: 1px solid #ccc;
+    #edit_title {
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    #edit_name {
+        margin-left: 5%;
+        font-size: 1em;
+        text-alignment: center;
+    }
+
+    #couch {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+
+    .img-container {
+
+      width: 200px;
+      height: auto;
+      padding-left: 5%;
+
+
+    }
+
+    #canvas {
+        width: 50%;
+        padding-right: 5%;
+    }
+
+    #authorinfo {
+        display: flex;
+        flex-direction: column;
+        justify-content: space between;
+        align-items: center;
+        width: 50%;
+
     }
 
     #search-form {
@@ -178,13 +260,4 @@
     #search-form input {
       padding: 5px;
       margin-bottom: 10px;
-    }
-
-    #sort {
-      width: 60px;
-      height: 40px;
-      background: #333;
-      color: white;
-      border: none;
-      cursor: pointer;
     }

@@ -9,7 +9,7 @@
 <body>
 
   <!-- LEFT PANEL -->
-  <div id="left-panel">
+  <div class="left-panel">
     <div class="route" id="add_book"><a href=add_book><img src=static/images/typewriter.png alt="Add Book"></a></div>
     <div class="route" id="add_author"><a href=add_author><img src=static/images/AddAuthor.png alt="Add Author"></a></div>
     <input type="image" src="static/images/delete_book.png" alt="delete" id="deletion" form="idForm"/>
@@ -17,27 +17,23 @@
   </div>
 
   <!-- CENTER PANEL -->
-  <div id="center-panel">
+  <div class="center-panel">
     <div id="switches">
 
       <div class="left-half">
-        <input type="image" class="image-input" src="static/images/sorting_Seth.png" alt="sort" id="sort" form="sortForm">
-        <p>sort</p>
-
-
+          <input type="image" src="static/images/sorting_Seth.png" name="submit" alt="submit" id="sort" form="sortForm">
       </div>
-      <form class="right-half" action="/sort" method="POST" id="sortForm">
-
-        <label><input type="checkbox" id="sw_title" name="sw_title"> Title</label>
-        <label><input type="checkbox" id="sw_author" name="sw_author"> Author</label>
-        <label><input type="checkbox" id="sw_year" name="sw_year"> Publication Year</label>
-        <label><input type="checkbox" id="desc" name="desc"> Desc</label>
-        </form>
+      <form class="right-half" id="sortForm">
+        <label><input class="switch"  type="radio" id="order_by1" name="sort" value="title"> Title</label>
+        <label><input class="switch"  type="radio" id="order_by2" name="sort" value="author"> Author</label>
+        <label><input class="switch"  type="radio" id="order_by3" name="sort" value="publication_year"> Publication Year</label>
+        <label><input class="switch"  type="checkbox" id="direction" name="desc"> Desc</label>
       </form>
     </div>
-    <div id="carousel-container">
+
+     <div id="carousel-container">
       <div id="carousel">
-        <!-- Your carousel goes here -->
+        <!-- Carousel placed and maintained via javascript -->
       </div>
     </div>
 
@@ -52,23 +48,61 @@
 
     </form>
   </div>
-
   <!-- RIGHT PANEL -->
-  <div id="right-panel">
-    <div id="details"></div>
-    <div class="img-container" id="portrait"></div>
+  <div class="right-panel">
+    <div id="details">
+      <label for="edit_title" style="color: white;font-weight: bold;">Book Details</label>
+      <form action="/edit" method="PUT" id="book_edit">
+    <p>
+        <input type="text" name="title" id="edit_title" size="40"
+        placeholder="${book.title}">
+    </p>
+    <p>
+        <input type="text" name="author" id="edit_author" size="40"
+         placeholder="${book.author}">
+    </p>
+    <p>
+        <input type="text" name="isbn" id="edit_isbn" size="40"
+         placeholder="${book.isbn}">
+    </p>
+    <p>
+        <input type="number" name="year" id="edit_year"
+         placeholder="${book.publication_year}">
+
+    </p>
+    <p>
+        <button type="submit" id="editBtn" form="book_edit">Edit</button>
+    </p>
+    <p>
+        <input type="text" name="name" id="edit_name" size="30"
+         placeholder="Author">
+    </p>
+      <div id="couch">
+        <div id="canvas">
+          <div class="img-container" id="portrait"></div>
+        </div>
+        <div id="authorinfo">
+          <p>
+          <input type="text" name="birth_date" id="edit_bdate" size="10"
+                 value="" placeholder="Born">
+          </p>
+          <p>
+          <input type="text" name="death" id="edit_death" size="10"
+                 value="" placeholder="(died?)">
+          </p>
+        </div>
+      </div>
     <div id="search-form">
-      <form id="search_Form" action="/search" method="POST">
-        <input type="text" id="find_title" placeholder="Search for Title">
-        <input type="text" id="find_author" placeholder="Search for Author">
-        <input type="number" id="find_year" placeholder="Search a Pub. Year">
-        <input type="text"  id="find_isbn" placeholder="Search for ISBN">
-        <input type="text" placeholder="Search ...">
-        <input type="text" placeholder="Search ..."><br>
-        <input type="submit" value="Search">
-      </form>
+        <label>Wildcard Search<form id="wildcard_search" action="/wildcard_search" method="POST"></label>
+        <input type="text" id="term" placeholder="Search anything...">
+
+        <input type="submit" value="Search" form="wildcard_search">
+
     </div>
   </div>
   <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
+
 </body>
+
+
 </html>
