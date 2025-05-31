@@ -45,6 +45,8 @@ def get_books():
             "title": book.title,
             "author": book.author.name,
             "publication_year": book.publication_year,
+            "authors_birth_date": book.author.birth_date,
+            "authors_date_of_death": book.author.date_of_death,
             "isbn": book.isbn,
             "img": f"static/images/{book.isbn}.png",
             "face": f"static/images/Portraits/{book.author_id}.png"
@@ -154,8 +156,10 @@ def get_sorted_books():
            {
                 "id": book.id,
                 "title": book.title,
-                "author": book.author_id,
+                "author": book.author.name,
                 "publication_year": book.publication_year,
+                "authors_birth_date": book.author.birth_date,
+                "authors_date_of_death": book.author.date_of_death,
                 "isbn": book.isbn,
                 "img": f"static/images/{book.isbn}.png",
                 "face": f"static/images/Portraits/{book.author_id}.png"
@@ -163,7 +167,7 @@ def get_sorted_books():
     ])
 
 
-@app.route('/edit', methods=('GET','PUT'))
+@app.route('/edit/<id>', methods=('GET','PUT'))
 def edit_book(id):
     """This function should enable record editing
     by simply changing the details on the right side
@@ -187,12 +191,12 @@ def edit_book(id):
         try:
             db.session.add(book)
             db.session.commit()
-            return render_template('add_book.html',
+            return render_template('home.html',
                                    message=f"{book.title} from {author.name} succesfully changed.")
         except Exception as e:
             db.session.rollback()
-            return render_template('add_book.html', message=f"Error accessing database. Details: {e}")
-    return redirect(url_for('home'))
+            return render_template('home.html', message=f"Error accessing database. Details: {e}")
+    return redirect(url_for('add_book'))
 
 
 @app.route('/delete', methods=['POST'])
@@ -240,8 +244,10 @@ def wildcard_search():
                 {
                     "id": book.id,
                     "title": book.title,
-                    "author": book.author_id,
+                    "author": book.author.name,
                     "publication_year": book.publication_year,
+                    "authors_birth_date": book.author.birth_date,
+                    "authors_date_of_death": book.author.date_of_death,
                     "isbn": book.isbn,
                     "img": f"static/images/{book.isbn}.png",
                     "face": f"static/images/Portraits/{book.author_id}.png"

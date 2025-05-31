@@ -52,46 +52,43 @@
   <div class="right-panel">
     <div id="details">
       <label for="edit_title" style="color: white;font-weight: bold;">Book Details</label>
-      <form action="/edit" method="PUT" id="book_edit">
-    <p>
-        <input type="text" name="title" id="edit_title" size="40"
-        placeholder="${book.title}">
-    </p>
-    <p>
-        <input type="text" name="author" id="edit_author" size="40"
-         placeholder="${book.author}">
-    </p>
-    <p>
-        <input type="text" name="isbn" id="edit_isbn" size="40"
-         placeholder="${book.isbn}">
-    </p>
-    <p>
-        <input type="number" name="year" id="edit_year"
-         placeholder="${book.publication_year}">
+      <form action="/edit" method="POST" id="book_edit">
 
-    </p>
-    <p>
-        <button type="submit" id="editBtn" form="book_edit">Edit</button>
-    </p>
-    <p>
+        <label class="detail_sect">Title<input type="text" name="title" id="edit_title" size="40"
+         value="${book.title}" placeholder="Title"></label>
+
+        <label class="detail_sect">Author<input type="text" name="author" id="edit_author" size="40"
+         value="${book.author}" placeholder="Author"></label>
+
+        <label class="detail_sect">ISBN<input type="text" name="isbn" id="edit_isbn" size="40"
+         value="${book.isbn}" placeholder="ISBN"></label>
+
+        <label class="detail_sect">Published in <input type="text" name="year" id="edit_year"
+         value="${book.publication_year}" placeholder="Publication Year" size="4"></label>
+        <br><br>
+        <button type="submit" id="editBtn" form="book_edit" >Edit</button>
+
+    </form>
+    </div>
+
+      <form action ="/edit" method="POST" id="author_edit">
+
         <input type="text" name="name" id="edit_name" size="30"
-         placeholder="Author">
-    </p>
-      <div id="couch">
-        <div id="canvas">
-          <div class="img-container" id="portrait"></div>
-        </div>
-        <div id="authorinfo">
-          <p>
-          <input type="text" name="birth_date" id="edit_bdate" size="10"
-                 value="" placeholder="Born">
-          </p>
-          <p>
-          <input type="text" name="death" id="edit_death" size="10"
-                 value="" placeholder="(died?)">
-          </p>
-        </div>
-      </div>
+               value="${book.author.name}" placeholder="Author">
+
+          <div id="couch">
+            <div class="img-container" id="portrait"></div>
+            <div id="authorinfo">
+              <label class="detail_sect">born  <input type="text" name="authors_birth_date"
+                                                    id="edit_birth" size="10"
+                                                    value="${authors_birth_date}"></label>
+              <p>
+              <label class="detail_sect">died  <input type="text" name="death" id="edit_death" size="10"
+                                                    value="Nope, still alive" placeholder="Nope, still alive"></label>
+              </p>
+            </div>
+          </div> // couch
+      </form>
     <div id="search-form">
         <label>Wildcard Search<form id="wildcard_search" action="/wildcard_search" method="POST"></label>
         <input type="text" id="term" placeholder="Search anything...">

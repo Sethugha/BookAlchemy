@@ -193,52 +193,66 @@
     }
 
     #details {
-      color: black;
+      color: white;
 
       margin-bottom: 30px;
       text-align: left;
       padding: 5%;
-      height: 250px;
+
       transition: opacity 0.8s;
     }
 
-    #book_edit, author_edit {
-        border: none;
-        outline: none;
-        width: 100%;
+    #book_edit, #author_edit {
+
+      border: none;
+      outline: none;
+      width: 100%;
     }
 
-    #edit_title {
-        font-size: 1em;
-        font-weight: bold;
+    .detail_sect {
+
+
+      font-size: .8em;
     }
 
-    #edit_name {
-        margin-left: 5%;
-        font-size: 1em;
-        text-alignment: center;
+    #editBtn {
+      width: 100px;
+      height: 40px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 5px, 15px, 15px,5px;
+      cursor: pointer;
+    }
+
+    #editBtn:active {
+      background: white;
+      color: #333;
+      border: none;
     }
 
     #couch {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
     }
 
 
     .img-container {
 
-      width: 200px;
+      width: 40%;
       height: auto;
-      padding-left: 5%;
-
 
     }
 
-    #canvas {
-        width: 50%;
-        padding-right: 5%;
+    #author_edit {
+      margin-left: 5%;
+      border-radius: 5px;
+
     }
+
+
 
     #authorinfo {
         display: flex;
@@ -246,6 +260,7 @@
         justify-content: space between;
         align-items: center;
         width: 50%;
+
 
     }
 

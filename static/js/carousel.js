@@ -71,11 +71,13 @@ function updateDetails() {
   book.title = book.title;
   bookId.value = book.isbn;
 
-  document.getElementById('edit_title').placeholder = book.title;
-  document.getElementById('edit_author').placeholder = book.author;
-  document.getElementById('edit_isbn').placeholder = book.isbn;
-  document.getElementById('edit_year').placeholder = book.publication_year;
-  document.getElementById('edit_name').placeholder = book.author;
+  document.getElementById('edit_title').value = book.title;
+  document.getElementById('edit_author').value = book.author;
+  document.getElementById('edit_isbn').value = book.isbn;
+  document.getElementById('edit_year').value = book.publication_year;
+  document.getElementById('edit_name').value = book.author;
+  document.getElementById('edit_birth').value = book.authors_birth_date;
+  if (book.authors_date_of_death != "..") {document.getElementById('edit_death').value = book.authors_date_of_death;}
   portrait.innerHTML = `<img src="${book.face}" alt="${book.author}" width="200px" height="auto" >`;
 }
 
