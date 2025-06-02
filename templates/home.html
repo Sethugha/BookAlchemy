@@ -39,7 +39,7 @@
 
     <div id="carousel-controls">
       <button class="carousel-button" id="rotate-left">◀ Rotate Left</button>
-      <button class="carousel-button" id="rotate-right">▶ Rotate Right</button>
+      <button class="carousel-button" id="rotate-right">Rotate Right ▶ </button>
     </div>
     <p>You can capture and drag the wheel with the mouse</p>
     <label for="idForm">{{ message }}</label>
@@ -52,7 +52,7 @@
   <div class="right-panel">
     <div id="details">
       <label for="edit_title" style="color: white;font-weight: bold;">Book Details</label>
-      <form action="/edit" method="POST" id="book_edit">
+      <form action="/edit" method="PUT" id="book_edit">
 
         <label class="detail_sect">Title<input type="text" name="title" id="edit_title" size="40"
          value="${book.title}" placeholder="Title"></label>
@@ -71,7 +71,7 @@
     </form>
     </div>
 
-      <form action ="/edit" method="POST" id="author_edit">
+
 
         <input type="text" name="name" id="edit_name" size="30"
                value="${book.author.name}" placeholder="Author">
@@ -87,15 +87,28 @@
                                                     value="Nope, still alive" placeholder="Nope, still alive"></label>
               </p>
             </div>
-          </div> // couch
+          </div>
       </form>
     <div id="search-form">
-        <label>Wildcard Search<form id="wildcard_search" action="/wildcard_search" method="POST"></label>
-        <input type="text" id="term" placeholder="Search anything...">
-
-        <input type="submit" value="Search" form="wildcard_search">
+        <label>Wildcard Search
+          <form action="/search" method="POST">
+            <input type="text" id="wildcard" placeholder="Search anything...">
+            <input type="submit" value="Search">
+          </form>
+        </label>
+        <label>Accident Incurance<br>
+          <form action="/backup" method="GET">
+            <button type="submit" value="Backup DB">Backup DB</label>
+          </form>
+        </label>
 
     </div>
+
+
+
+
+
+
   </div>
   <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
 

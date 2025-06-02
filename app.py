@@ -1,35 +1,35 @@
-from http.cookiejar import is_HDN
 
-from flask import Flask,render_template, request, jsonify, redirect, url_for
+import json
+import csv
+
+from flask import Flask,render_template, request, jsonify, redirect, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import joinedload
 from sqlalchemy import desc, or_
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from data_models import db, Author, Book
-import os
-
+from os import path
+from urllib.parse import quote
+import config
+import utilities
 
 
 #store absolute path to database file
-storage_path = f"""{os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                  'data', 'library.db'))}"""
-
+DB_PATH=path.abspath(path.join(path.dirname(__file__),path.join('data','library.db')))
 # Hint for the function of the 'delete Book'  image switch
 DEL_MSG="To delete this book (ISBN visible below), use 'Delete Book' button"
 
 #create Flask instance
 app = Flask(__name__)
-#configure database
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:////{storage_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#configure flask_SQLAlchemy
+app.config.from_object('config.DevConfig')
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
     """ Route to home page. """
     books = db.session.query(Book).join(Author).all()
     return render_template('home.html', books=books, message=DEL_MSG)
-
 
 
 @app.route('/api/books')
@@ -52,8 +52,6 @@ def get_books():
             "face": f"static/images/Portraits/{book.author_id}.png"
         } for book in books
     ])
-
-
 
 
 @app.route('/add_author', methods=['GET','POST'])
@@ -89,8 +87,7 @@ def add_author():
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
     """
-    Route for adding books. Currently the manual addition of single items
-    is working, bulk import of pasted csv worked once, will be reimplemented next
+    Route for manual adding single books.
     :parameter title: String containing complete title w/o quotes
     :parameter ISBN: String of numbers, 13 digits, no quotes. No numerics because
                      ISBN10 sometimes end with an 'x'.
@@ -109,6 +106,8 @@ def add_book():
         publication_year = request.form.get('publication_year')
 
         author = db.session.query(Author).filter(Author.name == authorname).one()
+        if not author:
+            redirect(url_for(add_author), message="Unknown author, create it first")
         book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author.id)
 
         try:
@@ -121,6 +120,52 @@ def add_book():
             return render_template('add_book.html', message=f"Error: Exception {e} occured. Rollback initiated.")
     return render_template('add_book.html',
                            message=f"{book.title}, ISBN {book.isbn} from {authorname} successfully added to books.")
+
+
+@app.route('/add_bulk', methods=['GET', 'POST'])
+def add_bulk():
+    """
+    Route for bulk insertion of books.
+    :parameter pasted csv: csv, pasted into the textarea. No headers, no quotes!
+    :parameter file upload: upload a csv file to server.
+
+
+    """
+    if request.method == 'GET':
+        return render_template('add_book.html')
+    elif request.method == 'POST':
+        # Handle the POST request
+        book_data = []
+        booklist = request.form.get('booklist')
+        csvFile = request.form.get('csvFile')
+
+        with open('input.csv', 'w') as textfile:
+            for book in booklist.split('\n'):
+                textfile.writelines(book)
+
+        with open('input.csv', 'r') as csvfile:
+            data=list(csv.DictReader(csvfile))
+
+        with open('output.json', mode='w', encoding='utf-8') as jsonfile:
+            json.dump(data, jsonfile, indent=4)
+
+        with open('output.json') as jsonfile:
+            data = json.load(jsonfile)
+
+
+        try:
+            db.session.bulk_insert_mappings(Book, data)
+            db.session.commit()
+            return redirect(url_for('add_book'))
+            #return render_template('add_book.html',
+            #                       message=f"Bulk {data}  successfully added to books.")
+        except Exception as e:
+            db.session.rollback()
+            return render_template('add_book.html', message=f"Error: Exception {e} occured. Rollback initiated.")
+    return render_template('add_book.html',
+                           message=f"{book.title}, ISBN {book.isbn} from {authorname} successfully added to books.")
+    #return redirect(url_for('add_book'))
+
 
 
 @app.route('/sort', methods=['GET','POST'])
@@ -167,8 +212,8 @@ def get_sorted_books():
     ])
 
 
-@app.route('/edit/<id>', methods=('GET','PUT'))
-def edit_book(id):
+@app.route('/edit', methods=('GET', 'POST','PUT'))
+def edit_book():
     """This function should enable record editing
     by simply changing the details on the right side
     and clicking "Edit" button. Work still in progress
@@ -192,7 +237,7 @@ def edit_book(id):
             db.session.add(book)
             db.session.commit()
             return render_template('home.html',
-                                   message=f"{book.title} from {author.name} succesfully changed.")
+                                   message=f"{book.title} from {author.name} successfully changed.")
         except Exception as e:
             db.session.rollback()
             return render_template('home.html', message=f"Error accessing database. Details: {e}")
@@ -223,25 +268,67 @@ def delete_book_in_view():
     return render_template('home.html')
 
 
-@app.route('/wildcard_search', methods=['GET','POST'])
-def wildcard_search():
-        """
-        Route to search books with POST and any search term containing title, author or year
-        :return: Query results as List of dictionaries
-        """
-        if request.method == 'POST':
-            term = request.form.get('wildcard_search')
-            if term:
-                term = '%' + term + '%'
-                books = db.session.query(Book).join(Author) \
-                         .filter(or_(Book.title.contains(term), \
-                                    Book.isbn.contains(term), \
-                                    Book.publication_year.contains(term), \
-                                    Author.name.contains(term))) \
-                                    .all()
 
-            return jsonify([
-                {
+@app.route('/search', methods=['GET','POST'])
+def search():
+    '''Query over all database tables (currently 2)
+    under consideration of the search specs listed below.
+    The search is case-insensitive and finds fragments.
+    Query w/o search-terms: books = db.session.query(Book).join(Author).all()
+    :parameters: title (usage: url/?title=<search term>)
+                      query over books table for title-fragments
+    :parameters: author (usage: url/?author=<search term>)
+                      query over authors table for author-name drags
+                      afterward query over books for books from this author
+
+    '''
+
+    if request.method == 'GET':
+        title = request.args.get('title')
+        isbn = request.args.get('isbn')
+        authorname = request.args.get('author')
+        year = request.args.get('publication_year')
+        collection=[]
+        if title:
+            collection = db.session.query(Book).join(Author).filter(Book.title.contains(title)) \
+                                           .all()
+        elif isbn:
+            collection = db.session.query(Book).join(Author).filter(Book.isbn.contains(isbn)) \
+                                           .all()
+        elif year:
+            valid_year = True
+            top_year=0
+            floor_year=0
+            if year.find('-'):
+                limits = year.split('-').strip()
+                for year in limits:
+                    if not year.isdigits():
+                        valid_year = False
+                    else:
+                        floor_year = int(limits[0])
+                        top_year = int(limits[1])
+            if not year.isdigits():
+                valid_year = False
+            if valid_year:
+                year = int(year)
+            if isinstance(year, int):
+                collection = db.session.query(Book).join(Author).filter(Book.publication_year == year) \
+                                                   .all()
+            if floor_year and top_year:
+                collection = db.session.query(Book).join(Author).filter(Book.publication_year \
+                                                   .between(floor_year, top_year)) \
+                                                   .all()
+        elif authorname:
+            authors = Author.query.filter(Author.name.contains(authorname)).all()
+            author_ids=[]
+            for author in authors:
+                author_ids.append(author.id)
+
+            collection = db.session.query(Book).join(Author).filter(Book.author_id.in_(author_ids)).all()
+
+            if collection:
+                books = jsonify([
+                    {
                     "id": book.id,
                     "title": book.title,
                     "author": book.author.name,
@@ -251,10 +338,41 @@ def wildcard_search():
                     "isbn": book.isbn,
                     "img": f"static/images/{book.isbn}.png",
                     "face": f"static/images/Portraits/{book.author_id}.png"
-                } for book in books
+                } for book in collection
             ])
-        return redirect(url_for('home'))
+            return render_template('home.html', books=books)
+        return render_template('home.html')
 
+
+@app.route('/wildcard', methods=['GET', 'POST'])
+def create_query_from_wildcard():
+    '''
+    This function receives a submitted search term (POSTed),
+    creates an orderly query and redirects the result to /search.
+    :return:
+    '''
+    if request.method != 'POST':
+        return make_response('malformed request', 400)
+
+    term = request.form.get('wildcard')
+    if term:
+        query_string = "/?"
+        for mod in ["title=", "&author=", "&publication_year"] :
+            query_string += mod + term
+        query_string = quote(query_string)
+        return redirect(url_for('search'), query_string=query_string, code=307)
+    return make_response('no search term', 400)
+
+
+@app.route('/backup')
+def backup():
+    """This function is triggered to copy the database file into a backup.
+    Uses shutil.copyfile().
+    """
+    answer = utilities.backup_database(DB_PATH)
+    if answer:
+        #return make_response(f'Database saved to {answer}', 200)
+        return render_template('home.html', answer=f'\nDatabase saved')
 
 
 def convert_date_string(datestring):
@@ -268,8 +386,9 @@ def convert_date_string(datestring):
 
 
 if __name__ == "__main__":
-    """Initialization of backend service"""
-    db.init_app(app)
-    #with app.app_context():
-    # db.create_all()
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    """Check for database file and initialization of backend service"""
+    if DB_PATH:
+        db.init_app(app)
+        #with app.app_context():
+        # db.create_all()
+        app.run(host="127.0.0.1", port=5000, debug=True)

@@ -4,7 +4,7 @@ let velocity = 0;
 let lastX = 0;
 let dragging = false;
 let animationFrame;
-const radius = 300;
+const radius = 500;
 let rotateInterval = null;
 
 
@@ -21,7 +21,7 @@ function rotateCarousel(direction) {
 
   function startRotation(direction) {
     stopRotation(); // in case one is already running
-    rotateInterval = setInterval(() => rotateCarousel(direction), 16); // ~60 FPS
+    rotateInterval = setInterval(() => rotateCarousel(direction), 12); // ~60 FPS
 
     // Visual cue (optional)
     if (direction === -1) {
@@ -43,9 +43,9 @@ function rotateCarousel(direction) {
   leftBtn.addEventListener("mousedown", () => startRotation(-1));
   rightBtn.addEventListener("mousedown", () => startRotation(1));
 
+
   // Stop on mouse up anywhere
   document.addEventListener("mouseup", () => stopRotation());
-
 
 
 function placeBooks() {
@@ -70,7 +70,6 @@ function updateDetails() {
   const book = books[index];
   book.title = book.title;
   bookId.value = book.isbn;
-
   document.getElementById('edit_title').value = book.title;
   document.getElementById('edit_author').value = book.author;
   document.getElementById('edit_isbn').value = book.isbn;
@@ -105,14 +104,16 @@ function setupInteraction() {
     velocity = 0;
   });
 
-  window.addEventListener("mousemove", e => {
+  carousel.addEventListener("mousemove", e => {
     if (!dragging) return;
     const dx = e.clientX - lastX;
-    angle += dx * 0.5;
-    velocity = dx * 0.5;
+    angle += dx * .5;
+    velocity = dx * 1;
     lastX = e.clientX;
     render();
   });
+
+
 
   window.addEventListener("mouseup", () => {
     dragging = false;
@@ -136,7 +137,6 @@ fetch('/api/books')
     } else if (urlPart.includes("sort=author")) {books.sort((a, b) => a.title.localeCompare(b.title));
     } else if (urlPart.includes("sort=publication_year")) {books.sort((a, b) => a.publication_year - b.publication_year);}
     if (urlPart.includes("desc=on")) {books.reverse();}
-    console.log(books);
     placeBooks();
     setupInteraction();
     animate();

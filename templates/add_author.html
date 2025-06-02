@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="{{ url_for('static', filename='add_items.css') }}">
-  </head>
-  <body>
-  <div class="left-panel"></div>
+<head>
+  <meta charset="UTF-8">
+  <title>Data Entry Page</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='add_items.css') }}">
+</head>
+<body>
+<div class="outerContainer">
+  <div class="innerContainer">
     <!-- Manual Input Panel -->
     <div class="panel">
-       <div id="manual_input">
-        <h2>Manual Input</h2>
-        <form action="/add_author" method="POST">
-          <label for="name">Author Name:</label>
-          <input type="text" id="name" name="name" required><br><br>
+      <h2>Manual Entry</h2>
+      <form action="/add_author" method="POST">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Author´s full name" required>
+      </div>
+      <div class="form-group">
+        <label for="birth_date">Date of Birth</label>
+        <input type="date" id="birth_date" name="birth_date">
+      </div>
+        <div class="form-group">
+        <label for="date_of_death">Date of Death</label>
+        <input type="date" id="date_of_death" >
+      </div>
+        <input type="submit" value="Add Author">
+      </form>
+    </div>
 
-          <label for="birth_date">Birthdate:</label>
-          <input type="date" id="birth_date" name="birth_date" required><br><br>
-          <label for="date_of_death">Date of Death:</label>
-          <input type="date" id="date_of_death" name="date_of_death"><br><br>
-          <input type="submit" value="Add Author">
-        </form>
-
-       </div>
-
+    <!-- Bulk CSV Input Panel -->
+    <div class="panel">
+      <div id="imageContainer">
+        <img src=""<!-- Image will be pasted here -->
+      </div>
+    </div>
   </div>
-    <h3>{{ message }}</h3>
+    <div class="lowerContainer">
+      <h3>{{ message }}</h3>
 
+    </div>
     <nav class="universal">
         <a href="/">Home</a>
     </nav>
+</div>
 </body>
 </html>

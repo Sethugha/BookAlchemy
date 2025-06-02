@@ -162,7 +162,7 @@
     #carousel-controls {
       display: flex;
       gap: 20px;
-      margin-top: 20px;
+      margin-top: 40px;
     }
 
     .carousel-button {
@@ -209,23 +209,24 @@
       width: 100%;
     }
 
+    // labels
     .detail_sect {
 
 
-      font-size: .8em;
+      font-size: .77em;
     }
 
-    #editBtn {
+    button  {
       width: 100px;
       height: 40px;
       background: #333;
       color: white;
       border: none;
-      border-radius: 5px, 15px, 15px,5px;
+      border-radius: 15px;
       cursor: pointer;
     }
 
-    #editBtn:active {
+    button:active {
       background: white;
       color: #333;
       border: none;
@@ -269,7 +270,9 @@
       padding: 15px;
       display: flex;
       flex-direction: column;
-      justify-content: space-evenly;
+      height: 50%;
+      justify-content: center;
+      gap: 15%;
     }
 
     #search-form input {

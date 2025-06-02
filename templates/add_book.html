@@ -6,8 +6,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='add_items.css') }}">
 </head>
 <body>
-
-  <div class="container">
+<div class="outerContainer">
+  <div class="innerContainer">
     <!-- Manual Input Panel -->
     <div class="panel">
       <h2>Manual Entry</h2>
@@ -34,17 +34,24 @@
 
     <!-- Bulk CSV Input Panel -->
     <div class="panel">
-      <form action="/add_bulk" method="POST">
-      <label for="booklist"><h2>Bulk Input (CSV)</h2></label>
-      <textarea name="booklist" id="booklist" placeholder="This side is for later implementation of bulk import"></textarea>
+      <form action="/add_bulk" method="POST" id="bulk">
+      <h2>Bulk Input</h2>
+      <label> Headers mandatory!<textarea name="booklist" id="booklist" placeholder="Paste your data here"></textarea>
       <div class="upload">
         <label for="csvFile">Or upload a CSV file:</label>
         <input type="file" id="csvFile" accept=".csv"><br><br><br>
-        <input type="submit" value="Add Books">
+        <input type="submit" value="Add Bulk">
       </div>
       </form>
     </div>
   </div>
-  <h3>{{ message }}</h3>
+  <div class="lowerContainer">
+      <h3>{{ message }}</h3>
+
+    </div>
+    <nav class="universal">
+        <a href="/">Home</a>
+    </nav>
+</div>
 </body>
 </html>

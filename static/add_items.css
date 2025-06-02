@@ -9,15 +9,36 @@ body {
       width: 90%;
     }
 
-    .container {
+    .outerContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      width:100vw;
+      height: 90vh;
+      margin: auto;
+    }
+
+    .innerContainer {
       display: flex;
       flex-direction: row;
 
       justify-content: center;
       gap: 40px;
-      width:60%;
+      width:80%;
+      height: 70%;
       margin: auto;
     }
+
+    .lowerContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width:60%;
+      height: 30%;
+      margin: auto;
+      }
 
     .panel {
       border: 1px solid black;
@@ -25,8 +46,9 @@ body {
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       padding: 30px;
-      width: 50%;
+      width: 60%;
       flex: 1;
+
     }
 
     .panel h2 {
