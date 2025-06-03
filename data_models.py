@@ -10,8 +10,8 @@ class Author(db.Model):
     name = db.Column(db.String(100))
     birth_date = db.Column(db.String)
     date_of_death = db.Column(db.String)
-    img_src = db.Column(db.String)
-    cover = db.Column(db.String)
+    #img_src = db.Column(db.String)
+    #cover = db.Column(db.String)
 
     books = db.relationship('Book', back_populates='author')
 
@@ -30,8 +30,8 @@ class Book(db.Model):
     isbn = db.Column(db.Integer, unique=True)
     title = db.Column(db.String(100))
     publication_year = db.Column(db.Integer)
-    img_src = db.Column(db.String)
-    portrait = db.Column(db.String)
+    #img_src = db.Column(db.String)
+    #portrait = db.Column(db.String)
     author_id = db.Column(db.Integer, db.ForeignKey('authors.id'))
     author = db.relationship('Author', back_populates='books')
 

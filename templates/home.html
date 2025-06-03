@@ -42,11 +42,12 @@
       <button class="carousel-button" id="rotate-right">Rotate Right ▶ </button>
     </div>
     <p>You can capture and drag the wheel with the mouse</p>
-    <label for="idForm">{{ message }}</label>
+    <label for="idForm" style="font-size:12px;">To delete the this book (ISBN visible below), use 'Delete Book' button</label>
     <form id="idForm" action="/delete" method="POST" type="hidden">
     <input type="number" name="bookId" id="bookId" type="hidden">
-
     </form>
+    <span><br>Wise words from your librarian:</span>
+    <span id="wise_words"><br>{{ message }}</span>
   </div>
   <!-- RIGHT PANEL -->
   <div class="right-panel">
@@ -91,9 +92,9 @@
       </form>
     <div id="search-form">
         <label>Wildcard Search
-          <form action="/search" method="POST">
-            <input type="text" id="wildcard" placeholder="Search anything...">
-            <input type="submit" value="Search">
+          <form action="/wildcard" method="POST">
+            <input type="text" id="wildcard_term" name="wildcard_term" placeholder="Search anything...">
+            <input type="submit" value="Search" >
           </form>
         </label>
         <label>Accident Incurance<br>
@@ -103,11 +104,6 @@
         </label>
 
     </div>
-
-
-
-
-
 
   </div>
   <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>

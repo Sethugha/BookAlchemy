@@ -17,7 +17,7 @@ import utilities
 #store absolute path to database file
 DB_PATH=path.abspath(path.join(path.dirname(__file__),path.join('data','library.db')))
 # Hint for the function of the 'delete Book'  image switch
-DEL_MSG="To delete this book (ISBN visible below), use 'Delete Book' button"
+#DEL_MSG="To delete this book (ISBN visible below), use 'Delete Book' button"
 
 #create Flask instance
 app = Flask(__name__)
@@ -25,55 +25,44 @@ app = Flask(__name__)
 app.config.from_object('config.DevConfig')
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def home():
     """ Route to home page. """
     books = db.session.query(Book).join(Author).all()
-    return render_template('home.html', books=books, message=DEL_MSG)
+    #if collection:
+    #    books = utilities.jsonify_query_results(collection)
+    #    return books
+    return render_template("home.html", books=books)
 
 
-@app.route('/api/books')
+@app.route('/api/books',methods=['GET', 'POST'])
 def get_books():
-    """Retrieves all books from the database.
-    Used in js. to fetch all books.
-    """
-
-    books = db.session.query(Book).join(Author).all()
-    return jsonify([
-        {
-            "id": book.id,
-            "title": book.title,
-            "author": book.author.name,
-            "publication_year": book.publication_year,
-            "authors_birth_date": book.author.birth_date,
-            "authors_date_of_death": book.author.date_of_death,
-            "isbn": book.isbn,
-            "img": f"static/images/{book.isbn}.png",
-            "face": f"static/images/Portraits/{book.author_id}.png"
-        } for book in books
-    ])
+    """Retrieves cached books from file"""
+    books = utilities.load_cache()
+    if isinstance(books, str):
+        collection = db.session.query(Book).join(Author).all()
+        books = utilities.jsonify_query_results(collection)
+    return books
 
 
 @app.route('/add_author', methods=['GET','POST'])
 def add_author():
     """
-        Route for adding authors.
-        :parameter name: String containing complete full name w/o quotes
-        :parameter birth_date: birth date as date.
-
-        :parameter date_of_death: If author has already passed away,
-                                  the date of the author´s death as date or NULL
-
-        :return: after adding to db a success message returns.
-        """
+    Route for adding authors.
+    :parameter name: String containing complete full name w/o quotes
+    :parameter birth_date: birth date as date.
+    :parameter date_of_death: If author has already passed away,
+               the date of the author´s death as date or NULL
+    :return: after adding to db a success message returns.
+    """
     if request.method == 'GET':
         return render_template('add_author.html')
 
     elif request.method == 'POST':
         # Handle the POST request
         name = request.form.get('name')
-        birth_date = convert_date_string(request.form.get('birth_date'))
-        date_of_death = convert_date_string(request.form.get('date_of_death'))
+        birth_date = utilities.convert_date_string(request.form.get('birth_date'))
+        date_of_death = utilities.convert_date_string(request.form.get('date_of_death'))
         author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
         try:
             db.session.add(author)
@@ -187,29 +176,16 @@ def get_sorted_books():
         elif request.form.get('publication_year'):
             order_item = getattr(Book, 'publication_year', None)
             if request.form.get('desc'):
-                sorted_books = db.session.query(Book.id, Book.author_id, Book.title,Book.isbn,
-                                 Book.publication_year,Author.name).join(Author, \
-                                 Book.author_id == Author.id) \
-                                 .order_by(desc(order_item)).all()
+                sorted_books = db.session.query(Book).join(Author) \
+                                 .order_by(desc(order_item)) \
+                                 .all()
             else:
-                sorted_books = db.session.query(Book.id, Book.author_id, Book.title,Book.isbn,
-                                 Book.publication_year,Author.name).join(Author, \
-                                 Book.author_id == Author.id) \
-                                 .order_by(order_item).all()
-
-    return jsonify([
-           {
-                "id": book.id,
-                "title": book.title,
-                "author": book.author.name,
-                "publication_year": book.publication_year,
-                "authors_birth_date": book.author.birth_date,
-                "authors_date_of_death": book.author.date_of_death,
-                "isbn": book.isbn,
-                "img": f"static/images/{book.isbn}.png",
-                "face": f"static/images/Portraits/{book.author_id}.png"
-           } for book in sorted_books
-    ])
+                sorted_books = db.session.query(Book).join(Author) \
+                                 .order_by(order_item) \
+                                 .all()
+            if sorted_books:
+                books = utilities.jsonify_query_results(sorted_books)
+                return books
 
 
 @app.route('/edit', methods=('GET', 'POST','PUT'))
@@ -219,7 +195,8 @@ def edit_book():
     and clicking "Edit" button. Work still in progress
     due to write protected fields there
     """
-    book = Book.query.get_or_404(id)
+    #book = Book.query.get_or_404(id)
+    isbn = Book.query.get('isbn')
 
     if request.method == 'PUT':
         title = request.form['title']
@@ -269,99 +246,54 @@ def delete_book_in_view():
 
 
 
-@app.route('/search', methods=['GET','POST'])
+@app.route('/search')
 def search():
-    '''Query over all database tables (currently 2)
+    """Query over all database tables (currently 2)
     under consideration of the search specs listed below.
     The search is case-insensitive and finds fragments.
     Query w/o search-terms: books = db.session.query(Book).join(Author).all()
     :parameters: title (usage: url/?title=<search term>)
-                      query over books table for title-fragments
+                      query books table for title-fragments
     :parameters: author (usage: url/?author=<search term>)
-                      query over authors table for author-name drags
-                      afterward query over books for books from this author
+                      query authors table for author-name drags
+                      afterward query books for books from this author
 
-    '''
+    """
+    query = {'title': None, 'isbn': None, 'authorname': None, 'year': None}
+    query['title'] = request.args.get('title')
+    query['isbn'] = request.args.get('isbn')
+    query['authorname'] = request.args.get('author')
+    query['year'] = request.args.get('publication_year')
 
-    if request.method == 'GET':
-        title = request.args.get('title')
-        isbn = request.args.get('isbn')
-        authorname = request.args.get('author')
-        year = request.args.get('publication_year')
-        collection=[]
-        if title:
-            collection = db.session.query(Book).join(Author).filter(Book.title.contains(title)) \
-                                           .all()
-        elif isbn:
-            collection = db.session.query(Book).join(Author).filter(Book.isbn.contains(isbn)) \
-                                           .all()
-        elif year:
-            valid_year = True
-            top_year=0
-            floor_year=0
-            if year.find('-'):
-                limits = year.split('-').strip()
-                for year in limits:
-                    if not year.isdigits():
-                        valid_year = False
-                    else:
-                        floor_year = int(limits[0])
-                        top_year = int(limits[1])
-            if not year.isdigits():
-                valid_year = False
-            if valid_year:
-                year = int(year)
-            if isinstance(year, int):
-                collection = db.session.query(Book).join(Author).filter(Book.publication_year == year) \
-                                                   .all()
-            if floor_year and top_year:
-                collection = db.session.query(Book).join(Author).filter(Book.publication_year \
-                                                   .between(floor_year, top_year)) \
-                                                   .all()
-        elif authorname:
-            authors = Author.query.filter(Author.name.contains(authorname)).all()
-            author_ids=[]
-            for author in authors:
-                author_ids.append(author.id)
-
-            collection = db.session.query(Book).join(Author).filter(Book.author_id.in_(author_ids)).all()
-
-            if collection:
-                books = jsonify([
-                    {
-                    "id": book.id,
-                    "title": book.title,
-                    "author": book.author.name,
-                    "publication_year": book.publication_year,
-                    "authors_birth_date": book.author.birth_date,
-                    "authors_date_of_death": book.author.date_of_death,
-                    "isbn": book.isbn,
-                    "img": f"static/images/{book.isbn}.png",
-                    "face": f"static/images/Portraits/{book.author_id}.png"
-                } for book in collection
-            ])
-            return render_template('home.html', books=books)
-        return render_template('home.html')
+    collection = utilities.query_database(query)
+    print(collection)
+    if not isinstance(collection, str):
+        utilities.cache_data(collection)
+    return redirect(url_for('home'))
 
 
-@app.route('/wildcard', methods=['GET', 'POST'])
+
+@app.route('/wildcard', methods=['POST'])
 def create_query_from_wildcard():
-    '''
+    """
     This function receives a submitted search term (POSTed),
     creates an orderly query and redirects the result to /search.
     :return:
-    '''
-    if request.method != 'POST':
-        return make_response('malformed request', 400)
+    """
 
-    term = request.form.get('wildcard')
+    term = request.form.get('wildcard_term')
+    print(f"from wildcard: {term}")
     if term:
-        query_string = "/?"
-        for mod in ["title=", "&author=", "&publication_year"] :
-            query_string += mod + term
-        query_string = quote(query_string)
-        return redirect(url_for('search'), query_string=query_string, code=307)
-    return make_response('no search term', 400)
+        query = {'title': term, 'isbn': term, 'authorname': term, 'year': term}
+        collection = utilities.query_database(query)
+        print(collection)
+        if not isinstance(collection, str):
+            utilities.cache_data(collection)
+        return redirect(url_for('home'))
+    collection = db.session.query(Book).join(Author).all()
+    all_books = utilities.jsonify_query_results(collection)
+    utilities.cache_data(all_books)
+    return redirect(url_for('home'))
 
 
 @app.route('/backup')
@@ -369,20 +301,30 @@ def backup():
     """This function is triggered to copy the database file into a backup.
     Uses shutil.copyfile().
     """
-    answer = utilities.backup_database(DB_PATH)
-    if answer:
-        #return make_response(f'Database saved to {answer}', 200)
-        return render_template('home.html', answer=f'\nDatabase saved')
+    message = utilities.backup_database(DB_PATH)
+    if message:
+        return render_template('home.html', message=message)
 
 
-def convert_date_string(datestring):
-    """
-    Converts the date, which are submitted by add_author,
-    into german style date-strings. Only for my convenience.
-    :returns: German style datestring, type String
-              e.g: 01.01.2010 instead of 2010-01-01
-     """
-    return datestring[-2:] + '.' + datestring[-5:-3] + '.' + datestring[:4]
+@app.route('/hello', methods=['GET', 'POST'])
+def hello():
+
+    # POST request
+    if request.method == 'POST':
+        print('Incoming..')
+        print(request.get_json())  # parse as JSON
+        return 'OK', 200
+
+    # GET request
+    else:
+        message = {'greeting':'Hello from Flask!'}
+        return jsonify(message)  # serialize and use JSON headers
+
+
+@app.route('/test')
+def test_page():
+    # look inside `templates` and serve `index.html`
+    return render_template('index.html')
 
 
 if __name__ == "__main__":

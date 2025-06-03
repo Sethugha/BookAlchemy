@@ -16,6 +16,7 @@ class ProdConfig(Config):
     TESTING = False
     SQLALCHEMY_DATABASE_URI = f"sqlite:////{DB_PATH}"
 
+
 class DevConfig(Config):
     """DEV only config"""
     FLASK_ENV = 'development'
@@ -23,4 +24,4 @@ class DevConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = f"sqlite:////{DB_PATH}"
     #Print database-related actions to console.
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
