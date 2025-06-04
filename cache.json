@@ -4,28 +4,6 @@
         "authors_birth_date": "23.03.1963",
         "authors_date_of_death": "..",
         "face": "static/images/Portraits/1.png",
-        "id": 1,
-        "img": "static/images/1618244086.png",
-        "isbn": "1618244086",
-        "publication_year": 2003,
-        "title": "There Will be Dragons (Council Wars Book 1)"
-    },
-    {
-        "author": "John Ringo",
-        "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
-        "face": "static/images/Portraits/1.png",
-        "id": 2,
-        "img": "static/images/9781625791603.png",
-        "isbn": "9781625791603",
-        "publication_year": 2013,
-        "title": "Gust Front, Second Edition (Legacy of the Aldenata Book 2)"
-    },
-    {
-        "author": "John Ringo",
-        "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
-        "face": "static/images/Portraits/1.png",
         "id": 3,
         "img": "static/images/9781668072783.png",
         "isbn": "9781668072783",
@@ -163,5 +141,27 @@
         "isbn": "1416555919",
         "publication_year": 2009,
         "title": "Honor of the clan"
+    },
+    {
+        "author": "John Ringo",
+        "authors_birth_date": "23.03.1963",
+        "authors_date_of_death": "..",
+        "face": "static/images/Portraits/1.png",
+        "id": 27,
+        "img": "static/images/9781625791603.png",
+        "isbn": "9781625791603",
+        "publication_year": 2003,
+        "title": "Gust Front"
+    },
+    {
+        "author": "Edwin Erich Dwinger",
+        "authors_birth_date": "1898-04-23",
+        "authors_date_of_death": null,
+        "face": "static/images/Portraits/20.png",
+        "id": 28,
+        "img": "static/images/3404012054.png",
+        "isbn": "3404012054",
+        "publication_year": 1979,
+        "title": "Und Gott schweigt...?"
     }
 ]

@@ -36,8 +36,9 @@ body {
       flex-direction: row;
       justify-content: center;
       width:60%;
-      height: 30%;
+      height: 20%;
       margin: auto;
+      border: 1px solid red;
       }
 
     .panel {
@@ -83,8 +84,9 @@ body {
     textarea {
       width: 90%;
       resize: vertical;
-      min-height: 300px;
+      min-height: 250px;
       font-family: monospace;
+      margin-bottom: 10px;
     }
 
 

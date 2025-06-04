@@ -5,11 +5,11 @@ from data_models import db, Author, Book
 from os import path
 import config
 import utilities
-
+import storage
+import json, csv
 
 #store absolute path to database file
 DB_PATH=path.abspath(path.join(path.dirname(__file__),path.join('data','library.db')))
-
 
 
 #create Flask instance
@@ -21,10 +21,10 @@ app.config.from_object('config.DevConfig')
 @app.route('/', methods=['GET'])
 def home():
     """ Route to home page. """
-    books = db.session.query(Book).join(Author).all()
-    #if collection:
-    #    books = utilities.jsonify_query_results(collection)
-    #    return books
+    #check for an existing cache
+    books = storage.load_cache()
+    if isinstance(books, str):
+        books = db.session.query(Book).join(Author).all()
     return render_template("home.html", books=books)
 
 
@@ -35,7 +35,7 @@ def get_books():
     for the js fetch api. This step is necessary to
     change the wheel contents matching the cursor.
     """
-    books = utilities.load_cache()
+    books = storage.load_cache()
     if isinstance(books, str):
         collection = db.session.query(Book).join(Author).all()
         books = utilities.jsonify_query_results(collection)
@@ -55,27 +55,27 @@ def add_author():
     if request.method == 'GET':
         return render_template('add_author.html')
 
-    elif request.method == 'POST':
-        # Handle the POST request
-        name = request.form.get('name')
-        birth_date = utilities.convert_date_string(request.form.get('birth_date'))
-        date_of_death = utilities.convert_date_string(request.form.get('date_of_death'))
-        author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
-        try:
-            db.session.add(author)
-            db.session.commit()
-            return render_template('add_author.html', message=f"{author.name}, born {birth_date}, successfully added to authors.")
-        except Exception as e:
-            db.session.rollback()
-            return render_template('add_author.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
+    # Handle the POST request
+    name = request.form.get('name')
+    birth_date = request.form.get('birth_date')
+    date_of_death = request.form.get('date_of_death')
+    author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
+    try:
+        db.session.add(author)
+        db.session.commit()
+        return render_template('add_author.html', message=f"{author.name}, born {birth_date}, successfully added to authors.")
+    except Exception as e:
+        db.session.rollback()
+        return render_template('add_author.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
+    return redirect(url_for('home'))
 
 
-@app.route('/add_book', methods=['GET', 'POST'])
+@app.route('/add_book', methods=['GET','POST'])
 def add_book():
     """
     Route for manual adding single books.
     :parameter title: String containing complete title w/o quotes
-    :parameter ISBN: String of numbers, 13 digits, no quotes. No numerics because
+    :parameter ISBN: String of numbers, 10 or 13 digits, no quotes. No numerics because
                      ISBN10 sometimes end with an 'x'.
     :parameter author: Full name of author w/o quotes
     :parameter publication_year: 4-digit-number
@@ -83,75 +83,61 @@ def add_book():
     """
     if request.method == 'GET':
         return render_template('add_book.html')
-    elif request.method == 'POST':
-        # Handle the POST request
 
-        title = request.form.get('title')
-        authorname = request.form.get('author')
-        isbn = request.form.get('isbn')
-        publication_year = request.form.get('publication_year')
-
-        author = db.session.query(Author).filter(Author.name == authorname).one()
-        if not author:
-            redirect(url_for(add_author))
-        book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author.id)
-
-        try:
-            db.session.add(book)
-            db.session.commit()
-            return redirect(url_for('add_book'))
-
-        except Exception as e:
-            db.session.rollback()
-            return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
-    return render_template('add_book.html',
-                           message=f"{book.title}, ISBN {book.isbn}  successfully added to books.")
+    # Handle the POST request
+    title = request.form.get('title')
+    author_name = request.form.get('author_name')
+    isbn = request.form.get('isbn')
+    publication_year = request.form.get('publication_year')
+    print(title, author_name, isbn)
+    author = db.session.query(Author.id).filter(Author.name == author_name).one()
+    author_id = author[0]
+    if not author_id:
+        return render_template('add_book.html', message=f"unknown author {author_name}.")
+    book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author_id)
+    try:
+        db.session.add(book)
+        db.session.commit()
+        return render_template('add_book.html',
+                               message=f"{book.title}, ISBN {book.isbn}  successfully added to books.")
+    except Exception as e:
+        db.session.rollback()
+        return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
 
 
-@app.route('/add_bulk', methods=['GET', 'POST'])
+@app.route('/add_bulk', methods=['POST'])
 def add_bulk():
     """
     Route for bulk insertion of books.
     :parameter pasted csv: csv, pasted into the textarea. No headers, no quotes!
     :parameter file upload: upload a csv file to server.
-
-
     """
-    if request.method == 'GET':
-        return render_template('add_book.html')
-    elif request.method == 'POST':
-        # Handle the POST request
-        book_data = []
-        booklist = request.form.get('booklist')
-        csvFile = request.form.get('csvFile')
-
+    # Handle the POST request
+    book_data = []
+    booklist = request.form.get('booklist')
+    file = request.form.get('file')
+    if booklist:
         with open('input.csv', 'w') as textfile:
             for book in booklist.split('\n'):
                 textfile.writelines(book)
-
         with open('input.csv', 'r') as csvfile:
             data=list(csv.DictReader(csvfile))
+    elif file:
+        with open(file, 'r') as csvfile:
+            data=list(csv.DictReader(csvfile))
 
-        with open('output.json', mode='w', encoding='utf-8') as jsonfile:
-            json.dump(data, jsonfile, indent=4)
-
-        with open('output.json') as jsonfile:
-            data = json.load(jsonfile)
-
-
-        try:
-            db.session.bulk_insert_mappings(Book, data)
-            db.session.commit()
-            return redirect(url_for('add_book'))
-            #return render_template('add_book.html',
-            #                       message=f"Bulk {data}  successfully added to books.")
-        except Exception as e:
-            db.session.rollback()
-            return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
-    return render_template('add_book.html',
-                           message=f"{book.title}, ISBN {book.isbn} successfully added to books.")
-    #return redirect(url_for('add_book'))
-
+    with open('output.json', 'w') as jsonfile:
+        json.dump(data, jsonfile, indent=4)
+    with open('output.json','r') as jsonfile:
+        data = json.load(jsonfile)
+    try:
+        db.session.bulk_insert_mappings(Book, data)
+        db.session.commit()
+        return render_template('add_book.html',
+                               message=f"Bulk {data}  successfully added to books.")
+    except Exception as e:
+        db.session.rollback()
+        return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
 
 
 @app.route('/sort', methods=['GET','POST'])
@@ -166,24 +152,23 @@ def get_sorted_books():
              on the wheel
     """
     order_item = 'id'
-    if request.method == 'POST':
-        if request.form.get('title'):
-            order_item = getattr(Book, 'title', None)
-        elif request.form.get('author'):
-            order_item = getattr(Author, 'name', None)
-        elif request.form.get('publication_year'):
-            order_item = getattr(Book, 'publication_year', None)
-            if request.form.get('desc'):
-                sorted_books = db.session.query(Book).join(Author) \
-                                 .order_by(desc(order_item)) \
-                                 .all()
-            else:
-                sorted_books = db.session.query(Book).join(Author) \
-                                 .order_by(order_item) \
-                                 .all()
-            if sorted_books:
-                books = utilities.jsonify_query_results(sorted_books)
-                return books
+    if request.form.get('title'):
+        order_item = getattr(Book, 'title', None)
+    elif request.form.get('author'):
+        order_item = getattr(Author, 'name', None)
+    elif request.form.get('publication_year'):
+        order_item = getattr(Book, 'publication_year', None)
+        if request.form.get('desc'):
+            sorted_books = db.session.query(Book).join(Author) \
+                             .order_by(desc(order_item)) \
+                             .all()
+        else:
+            sorted_books = db.session.query(Book).join(Author) \
+                                                 .order_by(order_item) \
+                                                 .all()
+        if sorted_books:
+            books = utilities.jsonify_query_results(sorted_books)
+            return books
 
 
 @app.route('/edit', methods=['POST'])
@@ -223,12 +208,13 @@ def delete_book_in_view():
     book = Book.query.get(book_id)
     if book:
         try:
+            storage.remove_from_cache(book.id)
             db.session.delete(book)
             db.session.commit()
             return render_template('home.html', message=f"Deleted Book: {title}")
         except Exception as e:
             return render_template('home.html', message=f"Error deleting book {title}. Details. {e}")
-    return render_template('home.html')
+    return redirect(url_for('home.html'))
 
 
 @app.route('/search')
@@ -251,10 +237,10 @@ def search():
     query['authorname'] = request.args.get('author')
     query['year'] = request.args.get('publication_year')
 
-    collection = utilities.query_database(query)
+    collection = storage.query_database(query)
     print(collection)
     if not isinstance(collection, str):
-        utilities.cache_data(collection)
+        storage.cache_data(collection)
     return redirect(url_for('home'))
 
 
@@ -268,9 +254,9 @@ def create_query_from_wildcard():
     """
     term = request.form.get('wildcard_term')
     print(f"from wildcard: {term}")
-    collection = utilities.query_for_keyword(term)
+    collection = storage.query_for_keyword(term)
     if not isinstance(collection, str):
-        utilities.cache_data(collection)
+        storage.cache_data(collection)
     return redirect(url_for('home'))
 
 
@@ -280,7 +266,7 @@ def backup():
     Uses shutil.copyfile().
     """
     message = utilities.backup_database(DB_PATH)
-    return render_template('home.html', message=message)
+    return redirect(url_for('home'))
 
 
 if __name__ == "__main__":
