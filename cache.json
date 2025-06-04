@@ -163,5 +163,16 @@
         "isbn": "3404012054",
         "publication_year": 1979,
         "title": "Und Gott schweigt...?"
+    },
+    {
+        "author": "William R. Forstchen",
+        "authors_birth_date": "1950-10-11",
+        "authors_date_of_death": null,
+        "face": "static/images/Portraits/21.png",
+        "id": 29,
+        "img": "static/images/9780451452863.png",
+        "isbn": "9780451452863",
+        "publication_year": 1997,
+        "title": "Battle Hymn (Lost Regiment)"
     }
 ]

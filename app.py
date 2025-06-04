@@ -60,14 +60,8 @@ def add_author():
     birth_date = request.form.get('birth_date')
     date_of_death = request.form.get('date_of_death')
     author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
-    try:
-        db.session.add(author)
-        db.session.commit()
-        return render_template('add_author.html', message=f"{author.name}, born {birth_date}, successfully added to authors.")
-    except Exception as e:
-        db.session.rollback()
-        return render_template('add_author.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
-    return redirect(url_for('home'))
+    txlog = storage.add_author_to_db(author)
+    return render_template('add_author.html', message=txlog)
 
 
 @app.route('/add_book', methods=['GET','POST'])
@@ -95,14 +89,8 @@ def add_book():
     if not author_id:
         return render_template('add_book.html', message=f"unknown author {author_name}.")
     book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author_id)
-    try:
-        db.session.add(book)
-        db.session.commit()
-        return render_template('add_book.html',
-                               message=f"{book.title}, ISBN {book.isbn}  successfully added to books.")
-    except Exception as e:
-        db.session.rollback()
-        return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
+    txlog = storage.add_book_to_db(book)
+    return render_template('add_book.html', message=txlog)
 
 
 @app.route('/add_bulk', methods=['POST'])
@@ -130,14 +118,8 @@ def add_bulk():
         json.dump(data, jsonfile, indent=4)
     with open('output.json','r') as jsonfile:
         data = json.load(jsonfile)
-    try:
-        db.session.bulk_insert_mappings(Book, data)
-        db.session.commit()
-        return render_template('add_book.html',
-                               message=f"Bulk {data}  successfully added to books.")
-    except Exception as e:
-        db.session.rollback()
-        return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
+    txlog = storage.bulk_insert_bookshelf(data)
+    return render_template('add_book.html', message=txlog)
 
 
 @app.route('/sort', methods=['GET','POST'])
@@ -275,6 +257,6 @@ if __name__ == "__main__":
         db.init_app(app)
         #with app.app_context():
         # db.create_all()
-        app.run(host="127.0.0.1", port=5000, debug=True)
+        app.run(host="127.0.0.1", port=5002, debug=True)
     else:
         print("No database accessible. Aborting.")

@@ -1,7 +1,10 @@
 from os import path
+import platform
 
 basedir = path.abspath(path.dirname(__file__))
 DB_PATH=path.abspath(path.join(path.dirname(__file__),path.join('data','library.db')))
+ostype = platform.system
+
 
 class Config:
     """Flask Base config."""
@@ -14,7 +17,10 @@ class ProdConfig(Config):
     FLASK_ENV = 'production'
     DEBUG = False
     TESTING = False
-    SQLALCHEMY_DATABASE_URI = f"sqlite:////{DB_PATH}"
+    if ostype in ['Linux', 'MacOs' ]:
+        SQLALCHEMY_DATABASE_URI = f"sqlite:////{DB_PATH}"
+    else:
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_PATH}"
 
 
 class DevConfig(Config):
@@ -22,6 +28,17 @@ class DevConfig(Config):
     FLASK_ENV = 'development'
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = f"sqlite:////{DB_PATH}"
+    if ostype in ['Linux', 'MacOs' ]:
+        SQLALCHEMY_DATABASE_URI = f"sqlite:////{DB_PATH}"
+    else:
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_PATH}"
     #Print database-related actions to console.
     SQLALCHEMY_ECHO = False
+
+
+def main():
+    host = platform.system()
+    print(host)
+
+if __name__ == "__main__":
+    main()

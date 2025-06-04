@@ -1,7 +1,8 @@
 import json
+import utilities
 from data_models import db, Author, Book
 from sqlalchemy import or_
-import utilities
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 
 
 def cache_data(books):
@@ -109,3 +110,82 @@ def query_for_keyword(text):
         collection = db.session.query(Book).join(Author).all()
     books = utilities.jsonify_query_results(collection)
     return books.json
+
+
+def add_author_to_db(author):
+    """
+    Function to all a new instance of Author to db
+    As an automatic portrait import is still under construction
+    feel free to add a portrait to static/images/portraits
+    named <id>.png or use the joker named 0.png
+    :parameter author: New instance of Author
+    :return: message
+    """
+    try:
+        db.session.add(author)
+        db.session.commit()
+        return f"{author.name}, born {author.birth_date} successfully added."
+    except IntegrityError:
+        db.session.rollback()
+        return f"Another author with the same data already present. Insertion aborted."
+    except PendingRollbackError:
+        while db.session.registry().in_transaction():
+            db.session.rollback()
+        return  "operation terminated due to a failed insert or update before,  \
+                 waiting for an orderly rollback. Cleared transaction log of pending \
+                 transactions"
+    except Exception as e:  # For Debugging and Testing catch all Exceptions
+        db.session.rollback()
+        return f"Something went wrong: Exception {e}."
+
+
+def add_book_to_db(book):
+    """Stores a single book in the database. As the automatic picture import
+    is still under construction feel free to add a cover img to static/images
+    named <isbn>.png. Alternatively there is a joker named void.png.
+    :parameter: new Book instance "book"
+    :return: message
+    """
+    try:
+        db.session.add(book)
+        db.session.commit()
+        return f"{book.title}, ISBN {book.isbn} successfully added to books."
+    except IntegrityError:
+        db.session.rollback()
+        return "Uniqueness violated. Insertion aborted.  \
+                Maybe you stated a wrong ISBN?"
+    except PendingRollbackError:
+        while db.session.registry().in_transaction():
+            db.session.rollback()
+        return "Operation terminated due to a failed insert or update before,  \
+                 waiting for an orderly rollback. Cleared transaction log of pending \
+                 transactions"
+    except Exception as e:  # For Debugging and Testing catch all Exceptions
+        db.session.rollback()
+        return f"Something went wrong: Exception {e}."
+
+
+def bulk_insert_bookshelf(data):
+    """
+    Bulk import of a bookshelf into db. not fully developed but functional.
+    A small input file can be found in the root folder.
+    cover pictures must be added afterwards.
+    Bulk imports expect the author ids thus authors must be added before.
+    parameter data: booklist converted from csv to json
+    return: message
+    """
+    try:
+        db.session.bulk_insert_mappings(Book, data)
+        db.session.commit()
+        return f"Bulk {data} successfully added to books."
+    except IntegrityError:
+        db.session.rollback()
+        return """Uniqueness violated. Insertion aborted.
+                  Please check the imported list for doubles."""
+    except PendingRollbackError:
+        db.session.rollback()
+        return """Operation terminated due to a failed insert or update before,
+                                             waiting for an orderly rollback."""
+    except Exception as e:  # For Debugging and Testing catch all Exceptions
+        db.session.rollback()
+        return f"Something went wrong: Exception {e}."
