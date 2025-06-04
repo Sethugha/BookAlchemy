@@ -1,7 +1,5 @@
 import json
-import requests
 import shutil
-import wikipedia
 from data_models import db, Author, Book
 from flask import jsonify
 from sqlalchemy import or_
