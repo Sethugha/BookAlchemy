@@ -190,6 +190,7 @@
       display: flex;
       flex-direction: column;
       background-image: linear-gradient(to right, #2a256b, #465593, #6c86b9, #9bb8dc, #d4ebff);
+
     }
 
     #details {
@@ -198,6 +199,7 @@
       margin-bottom: 30px;
       text-align: left;
       padding: 5%;
+      position: relative;
 
       transition: opacity 0.8s;
     }

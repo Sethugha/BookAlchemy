@@ -6,6 +6,7 @@ let dragging = false;
 let animationFrame;
 const radius = 500;
 let rotateInterval = null;
+var canUpdate = true;
 
 
 const carousel = document.getElementById("carousel");
@@ -14,9 +15,37 @@ const leftBtn = document.getElementById("rotate-left");
 const rightBtn = document.getElementById("rotate-right");
 const portrait = document.getElementById("portrait");
 
+function noUpdate() {
+        canUpdate = false;
+        console.log(canUpdate);
+        }
+
+function enUpdate() {
+        canUpdate = true;
+        console.log(canUpdate);
+        }
+
+function toggleUpdate() {
+        canUpdate = !canUpdate;
+        console.log(canUpdate);
+}
+
+        document.addEventListener('DOMContentLoaded',
+                                      function () {
+
+            // Select the  element
+            var area = document.getElementById('details');
+
+            // Attach event listener for the 'mouseover' event
+            area.addEventListener('mouseover', noUpdate);
+            area.addEventListener('mouseout', enUpdate);
+
+        });
+
+
 function rotateCarousel(direction) {
-    angle += direction * 1; // speed: 1 deg per tick
-    carousel.style.transform = `rotateY(${currentAngle}deg)`;
+    angle += direction * .5; // speed: 1 deg per tick
+    carousel.style.transform = `rotateY(${angle}deg)`;
   }
 
   function startRotation(direction) {
@@ -80,11 +109,11 @@ function updateDetails() {
   portrait.innerHTML = `<img src="${book.face}" alt="${book.author}" width="200px" height="auto" >`;
 }
 
+
 function render() {
   carousel.style.transform = `rotateY(${angle}deg)`;
-  updateDetails();
+  if (canUpdate == true) {updateDetails();}
 }
-
 
 
 function animate() {
@@ -97,12 +126,14 @@ function animate() {
   animationFrame = requestAnimationFrame(animate);
 }
 
+
 function setupInteraction() {
   carousel.addEventListener("mousedown", e => {
     dragging = true;
     lastX = e.clientX;
     velocity = 0;
   });
+
 
   carousel.addEventListener("mousemove", e => {
     if (!dragging) return;
@@ -112,7 +143,6 @@ function setupInteraction() {
     lastX = e.clientX;
     render();
   });
-
 
 
   window.addEventListener("mouseup", () => {

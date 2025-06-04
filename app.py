@@ -1,23 +1,16 @@
-
-import json
-import csv
-
 from flask import Flask,render_template, request, jsonify, redirect, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import joinedload
 from sqlalchemy import desc, or_
-from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from data_models import db, Author, Book
 from os import path
-from urllib.parse import quote
 import config
 import utilities
 
 
 #store absolute path to database file
 DB_PATH=path.abspath(path.join(path.dirname(__file__),path.join('data','library.db')))
-# Hint for the function of the 'delete Book'  image switch
-#DEL_MSG="To delete this book (ISBN visible below), use 'Delete Book' button"
+
+
 
 #create Flask instance
 app = Flask(__name__)
@@ -37,7 +30,11 @@ def home():
 
 @app.route('/api/books',methods=['GET', 'POST'])
 def get_books():
-    """Retrieves cached books from file"""
+    """
+    Retrieves cached books from file. Is the access route
+    for the js fetch api. This step is necessary to
+    change the wheel contents matching the cursor.
+    """
     books = utilities.load_cache()
     if isinstance(books, str):
         collection = db.session.query(Book).join(Author).all()
@@ -50,7 +47,7 @@ def add_author():
     """
     Route for adding authors.
     :parameter name: String containing complete full name w/o quotes
-    :parameter birth_date: birth date as date.
+    :parameter birth_date: birthdate as date.
     :parameter date_of_death: If author has already passed away,
                the date of the author´s death as date or NULL
     :return: after adding to db a success message returns.
@@ -70,7 +67,7 @@ def add_author():
             return render_template('add_author.html', message=f"{author.name}, born {birth_date}, successfully added to authors.")
         except Exception as e:
             db.session.rollback()
-            return render_template('add_author.html', message=f"Error: Exception {e} occured. Rollback initiated.")
+            return render_template('add_author.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -81,7 +78,7 @@ def add_book():
     :parameter ISBN: String of numbers, 13 digits, no quotes. No numerics because
                      ISBN10 sometimes end with an 'x'.
     :parameter author: Full name of author w/o quotes
-    :parameter publication_year: 4 digit number
+    :parameter publication_year: 4-digit-number
     :return: after retrieving the author_id the record is added to db and a success message returns.
     """
     if request.method == 'GET':
@@ -96,7 +93,7 @@ def add_book():
 
         author = db.session.query(Author).filter(Author.name == authorname).one()
         if not author:
-            redirect(url_for(add_author), message="Unknown author, create it first")
+            redirect(url_for(add_author))
         book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author.id)
 
         try:
@@ -106,9 +103,9 @@ def add_book():
 
         except Exception as e:
             db.session.rollback()
-            return render_template('add_book.html', message=f"Error: Exception {e} occured. Rollback initiated.")
+            return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
     return render_template('add_book.html',
-                           message=f"{book.title}, ISBN {book.isbn} from {authorname} successfully added to books.")
+                           message=f"{book.title}, ISBN {book.isbn}  successfully added to books.")
 
 
 @app.route('/add_bulk', methods=['GET', 'POST'])
@@ -150,9 +147,9 @@ def add_bulk():
             #                       message=f"Bulk {data}  successfully added to books.")
         except Exception as e:
             db.session.rollback()
-            return render_template('add_book.html', message=f"Error: Exception {e} occured. Rollback initiated.")
+            return render_template('add_book.html', message=f"Error: Exception {e} occurred. Rollback initiated.")
     return render_template('add_book.html',
-                           message=f"{book.title}, ISBN {book.isbn} from {authorname} successfully added to books.")
+                           message=f"{book.title}, ISBN {book.isbn} successfully added to books.")
     #return redirect(url_for('add_book'))
 
 
@@ -168,6 +165,7 @@ def get_sorted_books():
     :return: Sorted books, visible by repositioning of the books
              on the wheel
     """
+    order_item = 'id'
     if request.method == 'POST':
         if request.form.get('title'):
             order_item = getattr(Book, 'title', None)
@@ -188,37 +186,25 @@ def get_sorted_books():
                 return books
 
 
-@app.route('/edit', methods=('GET', 'POST','PUT'))
+@app.route('/edit', methods=['POST'])
 def edit_book():
-    """This function should enable record editing
-    by simply changing the details on the right side
-    and clicking "Edit" button. Work still in progress
-    due to write protected fields there
     """
-    #book = Book.query.get_or_404(id)
-    isbn = Book.query.get('isbn')
-
-    if request.method == 'PUT':
-        title = request.form['title']
-        writer = request.form['author']
-        isbn = request.form['isbn']
-        year = int(request.form['publication_year'])
-
-        author = Author.query.get_or_404(writer)
-        book.title = title
-        book.author_id = author.id
-        book.isbn = isbn
-        book.publication_year = year
-
-        try:
-            db.session.add(book)
-            db.session.commit()
-            return render_template('home.html',
-                                   message=f"{book.title} from {author.name} successfully changed.")
-        except Exception as e:
-            db.session.rollback()
-            return render_template('home.html', message=f"Error accessing database. Details: {e}")
-    return redirect(url_for('add_book'))
+    Record editing function. As long as the mouse is hovering over the left
+    upper sidebar the attributes visible are editable except the ISBN. As it is
+    wordwide unique, editing would be counterproductive.
+    Since there is no cache refresh, a search is necessary to view the change
+    """
+    isbn = request.form.get('isbn')
+    title = request.form.get('title')
+    writer = request.form.get('author')
+    year = request.form.get('year')
+    item = db.session.query(Author.id).filter(Author.name == writer).one()
+    book = db.session.query(Book).filter(Book.isbn == isbn).one()
+    book.title = title
+    book.author_id = item[0]
+    book.publication_year = year
+    db.session.commit()
+    return redirect(url_for('home'))
 
 
 @app.route('/delete', methods=['POST'])
@@ -245,19 +231,19 @@ def delete_book_in_view():
     return render_template('home.html')
 
 
-
 @app.route('/search')
 def search():
-    """Query over all database tables (currently 2)
-    under consideration of the search specs listed below.
-    The search is case-insensitive and finds fragments.
-    Query w/o search-terms: books = db.session.query(Book).join(Author).all()
-    :parameters: title (usage: url/?title=<search term>)
+    """Query over all database tables
+    under consideration of the url search specs listed below.
+    The search is sensitive but finds fragments.
+    :parameter: title (usage: url/?title=<search term>)
                       query books table for title-fragments
-    :parameters: author (usage: url/?author=<search term>)
+    :parameter: author (usage: url/?author=<search term>)
                       query authors table for author-name drags
                       afterward query books for books from this author
-
+    :parameter: year  a single 4-letter expression delivers the books of this year
+                      two years,separated by a hyphen retrieves the tme span between
+    :return: redirection to homepage
     """
     query = {'title': None, 'isbn': None, 'authorname': None, 'year': None}
     query['title'] = request.args.get('title')
@@ -272,15 +258,14 @@ def search():
     return redirect(url_for('home'))
 
 
-
 @app.route('/wildcard', methods=['POST'])
 def create_query_from_wildcard():
     """
     This function receives a submitted search term (POSTed),
-    creates an orderly query and redirects the result to /search.
-    :return:
+    and queries every column for this term.
+    Submitting an empty input field gains all records.
+    :return: redirection to homepage
     """
-
     term = request.form.get('wildcard_term')
     print(f"from wildcard: {term}")
     collection = utilities.query_for_keyword(term)
@@ -295,9 +280,7 @@ def backup():
     Uses shutil.copyfile().
     """
     message = utilities.backup_database(DB_PATH)
-    if message:
-        return render_template('home.html', message=message)
-
+    return render_template('home.html', message=message)
 
 
 if __name__ == "__main__":
@@ -307,3 +290,5 @@ if __name__ == "__main__":
         #with app.app_context():
         # db.create_all()
         app.run(host="127.0.0.1", port=5000, debug=True)
+    else:
+        print("No database accessible. Aborting.")

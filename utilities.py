@@ -1,16 +1,10 @@
-import requests
-import wikipedia
-import shutil
 import json
+import requests
+import shutil
+import wikipedia
+from data_models import db, Author, Book
+from flask import jsonify
 from sqlalchemy import or_
-
-from flask import Flask,render_template, request, jsonify, redirect, url_for
-from data_models import db, Author, Book
-from urllib.parse import quote
-
-from sqlalchemy.util import bool_or_str
-
-from data_models import db, Author, Book
 
 
 def convert_date_string(datestring):
@@ -24,6 +18,8 @@ def convert_date_string(datestring):
 
 
 def jsonify_query_results(collection):
+    """converts result sets of database queries to json
+    to enable """
     books = jsonify([
             {
                 "id": book.id,
@@ -177,6 +173,12 @@ def query_for_keyword(text):
     print(f" jsonified: {books.json}")
     return books.json
 
+def refresh_cache(book):
+    books = load_cache()
+
+    print(books)
+    #for oldbook in books:
+    #   if oldbook['isbn'] == book.isbn
 
 
 def main():

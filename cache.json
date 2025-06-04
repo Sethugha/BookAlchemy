@@ -99,15 +99,15 @@
         "title": "Star Wars: Slave Ship"
     },
     {
-        "author": "Michael A. Stackpole",
-        "authors_birth_date": "27.11.1957",
+        "author": "John Ringo",
+        "authors_birth_date": "23.03.1963",
         "authors_date_of_death": "..",
-        "face": "static/images/Portraits/7.png",
+        "face": "static/images/Portraits/1.png",
         "id": 14,
         "img": "static/images/9783453042896.png",
         "isbn": "9783453042896",
-        "publication_year": 1988,
-        "title": "En Garde"
+        "publication_year": 4004,
+        "title": "Fundamental Genetics"
     },
     {
         "author": "E. E. Knight",
