@@ -2,7 +2,7 @@ import requests
 import wikipedia
 import shutil
 import json
-
+from sqlalchemy import or_
 
 from flask import Flask,render_template, request, jsonify, redirect, url_for
 from data_models import db, Author, Book
@@ -153,17 +153,36 @@ def query_database(query):
         print(f"found: {collection}")
 
     if collection:
+        print(f"from working query: {collection}")
         books = jsonify_query_results(collection)
         print(f" jsonified: {books.json}")
         return books.json
     return "No records found"
 
 
+def query_for_keyword(text):
+    if text:
+        author_ids = []
+        authors = Author.query.filter(Author.name.contains(text)).all()
+        for author in authors:
+            author_ids.append(author.id)
+        collection = db.session.query(Book).join(Author).filter(or_(Book.title.contains(text), \
+                                                         Book.isbn.contains(text), \
+                                                         Book.publication_year == text, \
+                                                         Book.author_id.in_(author_ids))) \
+                                                        .all()
+    else:
+        collection = db.session.query(Book).join(Author).all()
+    books = jsonify_query_results(collection)
+    print(f" jsonified: {books.json}")
+    return books.json
 
 
 
 def main():
     pass
+
+
 
 if __name__ == '__main__':
     main()
