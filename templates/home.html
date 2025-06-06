@@ -2,112 +2,129 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Roundabout Library</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='carousel.css') }}">
-
+  <!-- keep the Flask url_for helper if you serve from /static/ -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='carousel2.css') }}">
 </head>
 <body>
+  <div class="wrapper">
 
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-    <div class="route" id="add_book"><a href=add_book><img src=static/images/typewriter.png alt="Add Book"></a></div>
-    <div class="route" id="add_author"><a href=add_author><img src=static/images/AddAuthor.png alt="Add Author"></a></div>
-    <input type="image" src="static/images/delete_book.png" alt="delete" id="deletion" form="idForm"/>
-
-  </div>
-
-  <!-- CENTER PANEL -->
-  <div class="center-panel" id="wheelArea">
-    <div id="switches">
-
-      <div class="left-half">
-          <input type="image" src="static/images/sorting_Seth.png" name="submit" alt="submit" id="sort" form="sortForm">
+    <!-- LEFT PANEL -->
+    <aside class="left-panel">
+      <div class="route" id="add_book">
+        <a href="add_book"><img src="{{ url_for('static', filename='/images/typewriter.png') }}" alt="Add Book"></a>
       </div>
-      <form class="right-half" id="sortForm">
-        <label><input class="switch"  type="radio" id="order_by1" name="sort" value="title"> Title</label>
-        <label><input class="switch"  type="radio" id="order_by2" name="sort" value="author"> Author</label>
-        <label><input class="switch"  type="radio" id="order_by3" name="sort" value="publication_year"> Publication Year</label>
-        <label><input class="switch"  type="checkbox" id="direction" name="desc"> Desc</label>
-      </form>
-    </div>
-
-     <div id="carousel-container">
-      <div id="carousel">
-        <!-- Carousel placed and maintained via javascript -->
+      <div class="route" id="add_author">
+        <a href="add_author"><img src="{{ url_for('static', filename='/images/AddAuthor.png') }}" alt="Add Author"></a>
       </div>
-    </div>
+      <input type="image" src="{{ url_for('static', filename='/images/delete_book.png') }}" alt="delete" id="deletion" form="idForm"/>
+    </aside>
 
-    <div id="carousel-controls">
-      <button class="carousel-button" id="rotate-left">◀ Rotate Left</button>
-      <button class="carousel-button" id="rotate-right">Rotate Right ▶ </button>
-    </div>
-    <p>You can capture and drag the wheel with the mouse</p>
-    <label for="idForm" style="font-size:12px;">To delete the this book (ISBN visible below), use 'Delete Book' button</label>
-    <form id="idForm" action="/delete" method="POST" type="hidden">
-    <input type="number" name="bookId" id="bookId" type="hidden">
-    </form>
-    <span><br>Wise words from your librarian:</span>
-    <span id="wise_words"><br>{{ message }}</span>
-  </div>
-  <!-- RIGHT PANEL -->
-  <div class="right-panel" id="editables">
-    <div id="details">
-      <label for="edit_title" style="color: white;font-weight: bold;">Book Details</label>
-      <form action="/edit" method="POST" id="book_edit">
+    <!-- CENTER PANEL -->
+    <main class="center-panel">
+      <section id="switches">
+        <div class="left-half">
+          <input type="image" src="{{ url_for('static', filename='/images/sorting_Seth.png') }}" alt="Sort" id="sort" form="sortForm">
+        </div>
+        <form class="right-half" id="sortForm">
+          <label><input class="switch" type="radio" name="sort" value="title"> Title</label>
+          <label><input class="switch" type="radio" name="sort" value="author"> Author</label>
+          <label><input class="switch" type="radio" name="sort" value="publication_year"> Publication Year</label>
+          <label><input class="switch" type="checkbox" id="direction" name="desc"> Desc</label>
+        </form>
+      </section>
 
-        <label class="detail_sect">Title<input type="text" name="title" id="edit_title" size="40"
-         value="${book.title}" placeholder="Title"></label>
+      <section id="carousel-container">
+        <div id="carousel"><!-- populated by JS --></div>
+      </section>
 
-        <label class="detail_sect">Author<input type="text" name="author" id="edit_author" size="40"
-         value="${book.author}" placeholder="Author"></label>
+      <div id="carousel-controls">
+        <button class="carousel-button" id="rotate-left">◀ Rotate Left</button>
+        <button class="carousel-button" id="rotate-right">Rotate Right ▶</button>
+      </div>
 
-        <label class="detail_sect">ISBN<input type="text" name="isbn" id="edit_isbn" size="40"
-         value="${book.isbn}" placeholder="ISBN"></label>
-
-        <label class="detail_sect">Published in <input type="text" name="year" id="edit_year"
-         value="${book.publication_year}" placeholder="Publication Year" size="4"></label>
-        <br><br>
-        <button type="submit" id="editBtn" form="book_edit" >Edit</button>
+      <p class="hint">You can grab and drag the wheel with the mouse.</p>
+      <label for="bookId" class="hint">To delete the focussed book (referred on right panel) use the delete button.</label>
+      <form id="idForm" action="/delete" method="POST">
+        <input type="hidden" name="bookId" id="bookId">
       </form>
-    </div>
-      <form>
 
+      <div class="wise-words">
+        <span>Wise words from your librarian:</span>
+        <span id="wise_words"><br>{{ message }}</span>
+      </div>
+    </main>
 
-        <input type="text" name="name" id="edit_name" size="30"
-               value="${book.author.name}" placeholder="Author">
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+      <section id="details">
+        <h2>Book Details</h2>
+        <form action="/edit" method="POST" id="book_edit">
+          <label>Title
+            <input class="detail_sect" type="text" name="title" id="edit_title"
+                   placeholder="Title">
+          </label>
 
+          <label>Author
+            <input class="detail_sect" type="text" name="author" id="edit_author"
+                   placeholder="Author">
+          </label>
+
+          <label>ISBN
+            <input class="detail_sect" type="text" name="isbn" id="edit_isbn"
+                   placeholder="ISBN">
+          </label>
+
+          <label>Published in
+            <input class="detail_sect" type="text" name="year" id="edit_year"
+                   placeholder="Year" size="4">
+          </label>
+
+          <button class="btn-rgt" type="submit" id="editBtn">Edit</button>
+        </form>
+      </section>
+
+      <section id="author">
+        <form>
+          <input class="detail_sect" type="text" name="name" id="edit_name"
+                 placeholder="Author name">
           <div id="couch">
-            <div class="img-container" id="portrait"></div>
+            <div class="img-container" id="portrait">
+              <img src="0.png" alt="Portrait">
+            </div>
             <div id="authorinfo">
-              <label class="detail_sect">born  <input type="text" name="authors_birth_date"
-                                                    id="edit_birth" size="10"
-                                                    value="${authors_birth_date}"></label>
-              <p>
-              <label class="detail_sect">died  <input type="text" name="death" id="edit_death" size="10"
-                                                    value="Nope, still alive" placeholder="Nope, still alive"></label>
-              </p>
+              <label>born
+                <input class="detail_min_sect" type="text" name="authors_birth_date"
+                       id="edit_birth" size="10">
+              </label>
+              <label>died
+                <input class="detail_min_sect" type="text" name="death"
+                       id="edit_death" size="10"
+                       placeholder="Nope, still alive">
+              </label>
             </div>
           </div>
-      </form>
-    <div id="search-form">
-        <label>Wildcard Search
-          <form action="/wildcard" method="POST">
-            <input type="text" id="wildcard_term" name="wildcard_term" placeholder="Search anything...">
-            <input type="submit" value="Search" >
-          </form>
-        </label>
-        <label>Accident Incurance<br>
-          <form action="/backup" method="GET">
-            <button type="submit" value="Backup DB">Backup DB</label>
-          </form>
-        </label>
+        </form>
+      </section>
 
-    </div>
+      <section id="search-form">
+        <form action="/wildcard" method="POST" class="stack">
+          <label>Wildcard Search</label>
+          <input class="detail_sect" type="text" id="wildcard_term" name="wildcard_term"
+                 placeholder="Search anything…">
+          <button class="btn-rgt" type="submit">Search</button>
+        </form>
+        <p></p>
+        <form action="/backup" method="GET" class="stack">
+          <label>Accident Insurance</label>
+          <button class="btn-rgt" type="submit">Backup DB</button>
+        </form>
+      </section>
+    </aside>
 
-  </div>
+  </div><!-- .wrapper -->
+
   <script src="{{ url_for('static', filename='js/carousel.js') }}"></script>
-
 </body>
-
-
 </html>

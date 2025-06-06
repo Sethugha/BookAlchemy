@@ -55,17 +55,6 @@
         "title": "Kriegspferd"
     },
     {
-        "author": "Robert N. Charrette",
-        "authors_birth_date": "01.01.1953",
-        "authors_date_of_death": "..",
-        "face": "static/images/Portraits/8.png",
-        "id": 12,
-        "img": "static/images/3453066154.png",
-        "isbn": "3453066154",
-        "publication_year": 1993,
-        "title": "Trau keinem Elf"
-    },
-    {
         "author": "K. W. Jeter",
         "authors_birth_date": "26.03.1950",
         "authors_date_of_death": "..",
@@ -103,17 +92,6 @@
         "authors_birth_date": "23.03.1963",
         "authors_date_of_death": "..",
         "face": "static/images/Portraits/1.png",
-        "id": 16,
-        "img": "static/images/9781416555537.png",
-        "isbn": "9781416555537",
-        "publication_year": 2008,
-        "title": "The last Centurion"
-    },
-    {
-        "author": "John Ringo",
-        "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
-        "face": "static/images/Portraits/1.png",
         "id": 17,
         "img": "static/images/9781416555506.png",
         "isbn": "9781416555506",
@@ -139,7 +117,7 @@
         "id": 19,
         "img": "static/images/1416555919.png",
         "isbn": "1416555919",
-        "publication_year": 2009,
+        "publication_year": 2019,
         "title": "Honor of the clan"
     },
     {
