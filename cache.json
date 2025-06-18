@@ -141,27 +141,5 @@
         "isbn": "3404012054",
         "publication_year": 1979,
         "title": "Und Gott schweigt...?"
-    },
-    {
-        "author": "Markus Heitz",
-        "authors_birth_date": "10.10.1971",
-        "authors_date_of_death": "",
-        "face": "static/images/Portraits/5.png",
-        "id": 31,
-        "img": "static/images/9780316049443.png",
-        "isbn": "9780316049443",
-        "publication_year": 2009,
-        "title": "The Dwarves"
-    },
-    {
-        "author": "Markus Heitz",
-        "authors_birth_date": "10.10.1971",
-        "authors_date_of_death": "",
-        "face": "static/images/Portraits/5.png",
-        "id": 32,
-        "img": "static/images/9781848665293.png",
-        "isbn": "9781848665293",
-        "publication_year": 2015,
-        "title": "Oneiros"
     }
 ]

@@ -23,8 +23,8 @@ def validate_isbn(isbn):
             sum += int(isbn[even]) * 3
         for odd in range(0, 12, 2):
             sum += int(isbn[odd])
-
-
+        if int(isbn[-1]) == 0:
+            return None
         if 10-(sum%10) == int(isbn[-1]):
             return None
 
@@ -86,8 +86,8 @@ def backup_database(filepath):
 
 
 def main():
-    pass
-
+    isbn="9781623658830"
+    print(validate_isbn(isbn))
 
 if __name__ == "__main__":
     main()
