@@ -1,0 +1,10 @@
+{% extends "add_author.html" %}
+
+{% block content %}
+    <div style="display: flex; justify-content: center;"><h2 >About {{ name }}</h2></div>
+    <textarea style="width:600px; height:400px; resize: vertical,horizontal;"> {{ summary }}</textarea>
+    <script>
+        left_field = document.getElementById('name');
+        left_field.value = {{ name }};
+    </script>
+{% endblock %}

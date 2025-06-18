@@ -2,7 +2,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 3,
         "img": "static/images/9781668072783.png",
@@ -13,7 +13,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 6,
         "img": "static/images/9783865525970.png",
@@ -24,7 +24,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 8,
         "img": "static/images/9783865526007.png",
@@ -35,7 +35,7 @@
     {
         "author": "Dem Mikhailov",
         "authors_birth_date": "23.11.1979",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/2.png",
         "id": 9,
         "img": "static/images/9783752146950.png",
@@ -46,7 +46,7 @@
     {
         "author": "Timothy Zahn",
         "authors_birth_date": "01.09.1951",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/10.png",
         "id": 11,
         "img": "static/images/3453058526.png",
@@ -57,7 +57,7 @@
     {
         "author": "K. W. Jeter",
         "authors_birth_date": "26.03.1950",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/9.png",
         "id": 13,
         "img": "static/images/5535788810.png",
@@ -68,7 +68,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 14,
         "img": "static/images/9783453042896.png",
@@ -79,7 +79,7 @@
     {
         "author": "E. E. Knight",
         "authors_birth_date": "07.03.1965",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/6.png",
         "id": 15,
         "img": "static/images/9783453526198.png",
@@ -90,7 +90,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 17,
         "img": "static/images/9781416555506.png",
@@ -101,7 +101,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 18,
         "img": "static/images/9780521006330.png",
@@ -112,7 +112,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 19,
         "img": "static/images/1416555919.png",
@@ -123,7 +123,7 @@
     {
         "author": "John Ringo",
         "authors_birth_date": "23.03.1963",
-        "authors_date_of_death": "..",
+        "authors_date_of_death": "",
         "face": "static/images/Portraits/1.png",
         "id": 27,
         "img": "static/images/9781625791603.png",
@@ -143,14 +143,25 @@
         "title": "Und Gott schweigt...?"
     },
     {
-        "author": "William R. Forstchen",
-        "authors_birth_date": "1950-10-11",
-        "authors_date_of_death": null,
-        "face": "static/images/Portraits/21.png",
-        "id": 29,
-        "img": "static/images/9780451452863.png",
-        "isbn": "9780451452863",
-        "publication_year": 1997,
-        "title": "Battle Hymn (Lost Regiment)"
+        "author": "Markus Heitz",
+        "authors_birth_date": "10.10.1971",
+        "authors_date_of_death": "",
+        "face": "static/images/Portraits/5.png",
+        "id": 31,
+        "img": "static/images/9780316049443.png",
+        "isbn": "9780316049443",
+        "publication_year": 2009,
+        "title": "The Dwarves"
+    },
+    {
+        "author": "Markus Heitz",
+        "authors_birth_date": "10.10.1971",
+        "authors_date_of_death": "",
+        "face": "static/images/Portraits/5.png",
+        "id": 32,
+        "img": "static/images/9781848665293.png",
+        "isbn": "9781848665293",
+        "publication_year": 2015,
+        "title": "Oneiros"
     }
 ]

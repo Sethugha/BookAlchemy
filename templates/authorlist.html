@@ -1,0 +1,35 @@
+{% extends "add_book.html" %}
+
+{% block content %}
+
+       <div class="inner-shell">
+         <form>
+           <label for="pick_author">Pick an Author</label><br>
+              <select name="pick_author" id="pick_author" size="20">
+              {% for author in authors %}
+
+
+              <option value="{{ author.name }}">No. {{ author.id }}: {{ author.name }}</option>
+              {% endfor %}
+              </select>
+         </form>
+
+       </div>
+       <div style="position: relative; width: 50%; height: 100%; alignment: right;">
+        <div class="inner-shell" id="add_author"  style="alignment: center;margin-top: 30%; margin-left: 60%;">
+        <label>Add new Author</label><a href="add_author"><img src="{{ url_for('static', filename='/images/AddAuthor.png') }}" \
+                                  alt="Add Author" width="100px" height="100px"></a>
+        </div>
+       </div>
+
+
+<script>
+    const select = document.getElementById('pick_author');
+    const input = document.getElementById('author_name');
+    select.addEventListener("click", function () {
+        input.value = select.value;
+
+        });
+
+</script>
+{% endblock %}

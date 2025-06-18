@@ -155,9 +155,6 @@ function setupInteraction() {
 }
 
 
-
-
-
 fetch('/api/books')
   .then(res => res.json())
   .then(data => {

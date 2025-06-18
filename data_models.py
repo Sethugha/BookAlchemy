@@ -10,10 +10,9 @@ class Author(db.Model):
     name = db.Column(db.String(100))
     birth_date = db.Column(db.String)
     date_of_death = db.Column(db.String)
-    #img_src = db.Column(db.String)
-    #cover = db.Column(db.String)
 
     books = db.relationship('Book', back_populates='author')
+
 
     def __repr__(self):
         return f"Author(id = {self.id}, name = {self.name}, birth_date = {self.birth_date}, \
@@ -21,7 +20,7 @@ class Author(db.Model):
 
 
     def ___str__(self):
-        return f"{self.name}, born {self.birth_date}"
+        return f"{self.name}, id {self.id}"
 
 
 class Book(db.Model):

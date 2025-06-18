@@ -10,11 +10,16 @@
   <div class="innerContainer">
     <!-- Manual Input Panel -->
     <div class="panel">
+      <div class="inner-shell">
       <h2>Manual Entry</h2>
       <form action="/add_author" method="POST">
       <div class="form-group">
         <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" placeholder="Author´s full name" required>
+        {% if name %}
+        <input type="text" id="name" name="name" placeholder="Author´s full name" value="{{ name }}" >
+        {% else %}
+        <input type="text" id="name" name="name" placeholder="Author´s full name">
+        {% endif %}
       </div>
       <div class="form-group">
         <label for="birth_date">Date of Birth</label>
@@ -22,17 +27,22 @@
       </div>
         <div class="form-group">
         <label for="date_of_death">Date of Death</label>
-        <input type="date" id="date_of_death" >
+        <input type="date" id="date_of_death" name="date_of_death">
       </div>
         <input type="submit" value="Add Author">
       </form>
+      <form action="/lookup" id="wiki" method="POST" hidden>
+        <input type="text" id="wikuery" name="wikuery" hidden>
+
+      </form>
+    </div>
     </div>
 
-    <!-- Bulk CSV Input Panel -->
+
     <div class="panel">
-      <div id="imageContainer">
-        <img src=""<!-- Image will be pasted here -->
-      </div>
+     {% block content %}
+
+     {% endblock %}
     </div>
   </div>
     <div class="lowerContainer">
@@ -43,5 +53,14 @@
         <a href="/">Home</a>
     </nav>
 </div>
+<script>
+  const authorname = document.getElementById('name');
+  const wikuery = document.getElementById('wikuery');
+  const queryform = document.getElementById('wiki');
+  authorname.addEventListener("change", function() {
+      wikuery.value = authorname.value;
+      wiki.submit();
+  });
+</script>
 </body>
 </html>

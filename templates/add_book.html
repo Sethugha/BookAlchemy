@@ -9,49 +9,55 @@
 <div class="outerContainer">
   <div class="innerContainer">
     <!-- Manual Input Panel -->
-    <div class="panel">
-      <h2>Manual Entry</h2>
-      <form action="/add_book" method="POST">
-      <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" id="title" name="title" placeholder="Book Title">
+    <div class="panel" style="border: 1px solid black;">
+      <div class="inner-shell" >
+        <h2>Manual Entry</h2>
+        <form action="/add_book" method="POST">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" placeholder="Book Title">
+          </div>
+          <div class="form-group">
+            <label for="isbn">ISBN</label>
+            <input type="text" id="isbn" name="isbn" placeholder="10 to 13 digits w/o hyphens" size="13" maxlength="13">
+          </div>
+          <div class="form-group">
+            <label for="author_name" id="author_label">Author</label>
+            <input type="text" id="author_name" name="author_name" placeholder="John Doe">
+            <input type="text" id="author_id" name="author_id" size="4" hidden>
+          </div>
+          <div class="form-group">
+            <label for="publication_year">Publication Year</label>
+            <input type="number" id="publication_year" name="publication_year" placeholder="YYYY" size="4" maxlength="4">
+          </div>
+            <input type="submit" value="Add Book">
+        </form>
       </div>
-      <div class="form-group">
-        <label for="isbn">ISBN</label>
-        <input type="text" id="isbn" name="isbn" placeholder="10 to 13 digits w/o hyphens" size="13" maxlength="13">
+     <div class="inner-shell">
+        <div><h2>Bulk Import</h2>
+          <div class="route" id="bulk_import">
+          <label>Switch to single book insertion</label><a href="add_book"><img src="{{ url_for('static', filename='/images/typewriter_icon.png') }}" alt="Add Book" style="width: 150px; height: 150px;"></a>
+          <label>Switch to bulk import</label><a href="add_bulk"><img src="{{ url_for('static', filename='/images/regal.png') }}" alt="Bulk Import"></a>
+        </div>
       </div>
-        <div class="form-group">
-        <label for="author_name">Author</label>
-        <input type="text" id="author_name" name="author_name" placeholder="John Doe">
-      </div>
-      <div class="form-group">
-        <label for="publication_year">Publication Year</label>
-        <input type="number" id="publication_year" name="publication_year" placeholder="YYYY" size="4" maxlength="4">
-      </div>
-        <input type="submit" value="Add Book">
-      </form>
+     </div>
     </div>
 
-    <!-- Bulk CSV Input Panel -->
+
     <div class="panel">
-      <form action="/add_bulk" method="POST" id="bulk">
-      <h2>Bulk Input</h2>
-      <label> Headers mandatory!<textarea name="booklist" id="booklist" placeholder="title,isbn,author_id,year"></textarea>
-      <div class="upload">
-        <label for="csvFile">Or upload a CSV file:</label>
-        <input type="file" id="csvFile" name="file" accept=".csv"><br><br><br>
-        <input type="submit" value="Add Bulk">
-      </div>
-      </form>
+        {% block content %}
+
+       {% endblock %}
     </div>
   </div>
-  <div class="lowerContainer">
-      <p>{{ message }}</p>
+  <div class="lowerContainer" id="librarian">
+      <h3>{{ message }}</h3>
 
-    </div>
-    <nav class="universal">
+ <nav class="universal">
         <a href="/">Home</a>
     </nav>
+    </div>
+
 </div>
 </body>
 </html>

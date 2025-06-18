@@ -1,0 +1,238 @@
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1900px;
+      height: 950px;
+      display: flex;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+
+      justify-content: center;
+      gap: 40px;
+      width:60%;
+      margin: auto;
+    }
+
+    .panel {
+      border: 1px solid black;
+      background-color: #C0C0C0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 30px;
+      width: 50%;
+      flex: 1;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #222;
+      padding: 5%;
+    }
+
+
+
+
+    /* LEFT PANEL - 3 Image Buttons */
+    .left-panel {
+      width: 300px;
+      background-image: linear-gradient(to left, #20265e, #435487, #6c84af, #9cb7d7, #d4ebff);
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+    }
+
+
+
+    /* CENTER PANEL */
+    .center-panel {
+      color: white;
+      width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-image: linear-gradient(to right, #20265e, #0a2451, #002043, #001c35, #001626, #000f18, #000305, #00101a, #00172b, #001d3c, #00224e, #0b255e, #2a256b);
+    }
+
+    /* Switches */
+
+    #switches {
+
+      width: 500px;
+      height: 250px;
+      margin: 0 auto; /* center horizontally */
+      display: flex;
+
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+
+    .switch.active {
+      background-color: #4488ff;
+      color: white;
+      font-weight: bold;
+    }
+
+    .left-half, .right-half {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+    }
+
+    .left_half {
+      flex-direction: column;
+      justify-content; center;
+      width: 100%;
+      gap: 10px;
+    }
+
+    .right-half {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .image-input {
+      background: none;
+      border: none;
+      cursor: pointer;
+
+    }
+
+    .image-input img {
+    width: 150px; /* or whatever size you want */
+    height: auto;
+    }
+
+
+
+
+    /* Carousel */
+    #carousel-container {
+      perspective: 1000px;
+      width: 1200px;
+      height: 300px;
+      position: relative;
+      margin-top: 30px;
+      margin-bottom: 0px;
+    }
+
+    #carousel {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.1s;
+    }
+
+    .book {
+      position: absolute;
+      width: 120px;
+      height: 180px;
+      left: 50%;
+      top: 50%;
+      transform-style: preserve-3d;
+      margin: -90px 0 0 -60px;
+      transition: transform 0s;
+    }
+
+    .book img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.3);
+      opacity: 1;
+    }
+
+    #carousel-controls {
+      display: flex;
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .carousel-button {
+      width: 120px;
+      height: 40px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 5px, 15px, 15px,5px;
+      cursor: pointer;
+    }
+
+    .carousel-button:active {
+      width: 120px;
+      height: 40px;
+      background: white;
+      color: #333;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* RIGHT PANEL - Text + Search Form */
+    .right-panel {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      background-image: linear-gradient(to right, #2a256b, #465593, #6c86b9, #9bb8dc, #d4ebff);
+
+    }
+
+    #details {
+      color: white;
+
+      margin-bottom: 30px;
+      text-align: left;
+      padding: 5%;
+      position: relative;
+
+      transition: opacity 0.8s;
+    }
+
+    #book_edit, #author_edit {
+
+      border: none;
+      outline: none;
+      width: 100%;
+    }
+
+    // labels
+    .detail_sect {
+
+
+      font-size: .77em;
+    }
+
+
+    button  {
+      width: 100px;
+      height: 40px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    button:active {
+      background: white;
+      color: #333;
+      border: none;
+    }

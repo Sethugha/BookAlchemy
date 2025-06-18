@@ -1,15 +1,18 @@
 from flask import Flask,render_template, request, jsonify, redirect, url_for, make_response
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc, or_
+from sqlalchemy import desc
 from data_models import db, Author, Book
 from os import path
 import config
 import utilities
 import storage
 import json, csv
+import wiki_lookup
+import datetime
 
 #store absolute path to database file
 DB_PATH=path.abspath(path.join(path.dirname(__file__),path.join('data','library.db')))
+#store current date for validations
+CURRENT_DATE=datetime.date.today()
 
 
 #create Flask instance
@@ -20,7 +23,9 @@ app.config.from_object('config.DevConfig')
 
 @app.route('/', methods=['GET'])
 def home():
-    """ Route to home page. """
+    """
+    Route to home page of the application and the literary roundabout.
+    """
     #check for an existing cache
     books = storage.load_cache()
     if isinstance(books, str):
@@ -36,10 +41,23 @@ def get_books():
     change the wheel contents matching the cursor.
     """
     books = storage.load_cache()
+    #If a string is coming back, it´s an error message
     if isinstance(books, str):
         collection = db.session.query(Book).join(Author).all()
         books = utilities.jsonify_query_results(collection)
     return books
+
+
+@app.route('/api/authors',methods=['GET', 'POST'])
+def get_authors():
+    """
+    Retrieves authors from db. Is the access route
+    for the js fetch api. This step is necessary for
+    proper author selection during book registering
+    """
+    collection = db.session.query(Author).all()
+    authors = utilities.jsonify_authors(collection)
+    return authors
 
 
 @app.route('/add_author', methods=['GET','POST'])
@@ -52,16 +70,40 @@ def add_author():
                the date of the author´s death as date or NULL
     :return: after adding to db a success message returns.
     """
+
     if request.method == 'GET':
         return render_template('add_author.html')
 
     # Handle the POST request
     name = request.form.get('name')
+    if not name:
+        return render_template('add_author.html',
+                               message="Missing author´s name. Please redo!")
     birth_date = request.form.get('birth_date')
+
     date_of_death = request.form.get('date_of_death')
-    author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
-    txlog = storage.add_author_to_db(author)
-    return render_template('add_author.html', message=txlog)
+    if date_of_death and birth_date < date_of_death < CURRENT_DATE:
+        author = Author(name=name, birth_date=birth_date, date_of_death=date_of_death)
+        txlog = storage.add_author_to_db(author)
+        storage.create_portrait_wildcard(author)
+        return render_template('add_author.html', message=txlog)
+    return render_template('add_author.html',
+                           message="Sorry, it seems, the dates came in wrong order. Please redo!")
+
+
+@app.route('/lookup', methods=['POST'])
+def lookup():
+    """If in author input form a change, followed by focusout
+    is detected, the contents of the name input are copied into another form
+    which after submitting starts a wikipedia-lookup for this name.
+    """
+    possible_name = request.form.get('wikuery')
+    if possible_name:
+        response = wiki_lookup.author_wiki_lookup(possible_name)
+        if response:
+            return render_template('wiki_request.html', name=possible_name, summary = response)
+        return render_template('work_in_progress.html')
+    return redirect(url_for('add_author'))
 
 
 @app.route('/add_book', methods=['GET','POST'])
@@ -75,31 +117,71 @@ def add_book():
     :parameter publication_year: 4-digit-number
     :return: after retrieving the author_id the record is added to db and a success message returns.
     """
+    try:
+        authors = db.session.query(Author).all()
+    except Exception as e:
+        print(f"DB Access failed: {e}.")
+
+
+
     if request.method == 'GET':
-        return render_template('add_book.html')
-
+        return render_template('authorlist.html', authors=authors, message="")
     # Handle the POST request
-    title = request.form.get('title')
-    author_name = request.form.get('author_name')
-    isbn = request.form.get('isbn')
-    publication_year = request.form.get('publication_year')
-    print(title, author_name, isbn)
-    author = db.session.query(Author.id).filter(Author.name == author_name).one()
-    author_id = author[0]
-    if not author_id:
-        return render_template('add_book.html', message=f"unknown author {author_name}.")
-    book = Book(title=title, isbn=isbn, publication_year=publication_year, author_id=author_id)
-    txlog = storage.add_book_to_db(book)
-    return render_template('add_book.html', message=txlog)
+    title = request.form.get('title', None)
+    author_name = request.form.get('author_name', None)
+    form_isbn = request.form.get('isbn', None)
+    publication_year = request.form.get('publication_year', None)
+    # All fields filled?
+    checksum = (len(title) * len(author_name) * len(form_isbn) * len(publication_year))
+    if not checksum:
+        return render_template('authorlist.html',
+                               message="At least one information is amiss! Please redo!",
+                               authors=authors)
+    #ISBN unique?
+    collection = db.session.query(Book).filter(Book.isbn == form_isbn).all()
+    if collection:
+        return render_template('authorlist.html',
+                               message="Double ISBN. Please redo!",
+                               authors=authors)
+    #ISBN validation
+    errormessage = utilities.validate_isbn(form_isbn)
+    if errormessage:
+        return render_template('authorlist.html',
+                               message=f"Invalid ISBN: {errormessage}. Please redo!",
+                               authors=authors)
+    #validate publication year
+    if int(publication_year) > int(CURRENT_DATE.year):
+        return render_template('authorlist.html',
+                               message=f"Invalid publication year: {publication_year}. Please redo!",
+                               authors=authors)
+    #retrieve author_id from author_name
+    for author in authors:
+        if author.name == author_name:
+            book = Book(title=title, isbn=form_isbn, publication_year=publication_year,
+                        author_id=author.id)
+            txlog = storage.add_book_to_db(book)
+            storage.create_cover_wildcard(book)
+            try:
+                books = db.session.query(Book).join(Author).all()
+                storage.cache_data(books)
+            except Exception as e:
+                print(f"Something went wrong with re-reading bookshelf: {e}.")
+            return render_template('add_book.html', message=txlog, authors=authors)
+
+    return render_template('add_book.html', message="Author not found. You might insert it first.in db", authors=authors)
 
 
-@app.route('/add_bulk', methods=['POST'])
+@app.route('/add_bulk', methods=['GET','POST'])
 def add_bulk():
     """
-    Route for bulk insertion of books.
-    :parameter pasted csv: csv, pasted into the textarea. No headers, no quotes!
+    Route for bulk insertion of books. A demo input file is attached:
+    'input.csv'. The contents are representative for Paste field and file import.
+    :parameter pasted csv: csv, pasted into the textarea. No quotes!
     :parameter file upload: upload a csv file to server.
     """
+    if request.method == 'GET':
+        return render_template('bulk_import.html')
+
     # Handle the POST request
     book_data = []
     booklist = request.form.get('booklist')
@@ -157,20 +239,32 @@ def get_sorted_books():
 def edit_book():
     """
     Record editing function. As long as the mouse is hovering over the left
-    upper sidebar the attributes visible are editable except the ISBN. As it is
-    wordwide unique, editing would be counterproductive.
-    Since there is no cache refresh, a search is necessary to view the change
+    upper sidebar the attributes visible are editable but editing an ISBN
+    can lead to uniqueness violations or an invalid ISBN.
     """
-    isbn = request.form.get('isbn')
+    form_isbn = request.form.get('isbn')
+    # ISBN unique?
+    collection = db.session.query(Book).filter(Book.isbn == form_isbn).all()
+    if collection:
+        return render_template('home.html',
+                               message="Double ISBN. No change committed.")
+    # ISBN validation
+    errormessage = utilities.validate_isbn(isbn)
+    if errormessage:
+        return render_template('home.html',
+                               message=f"Invalid ISBN: {errormessage}. Please redo!")
     title = request.form.get('title')
     writer = request.form.get('author')
     year = request.form.get('year')
     item = db.session.query(Author.id).filter(Author.name == writer).one()
-    book = db.session.query(Book).filter(Book.isbn == isbn).one()
+    book = db.session.query(Book).filter(Book.isbn == form_isbn).one()
     book.title = title
     book.author_id = item[0]
+    book.isbn = form_isbn
     book.publication_year = year
     db.session.commit()
+    books = db.session.query(Book).join(Author).all()
+    storage.cache_data(books)
     return redirect(url_for('home'))
 
 
@@ -199,6 +293,17 @@ def delete_book_in_view():
     return redirect(url_for('home.html'))
 
 
+@app.route('/delete_author', methods=['POST'])
+def delete_author():
+    """Deletion of the author selected on picklist right panel of add_author.html"""
+    author_id = request.form.get('del_author_id')
+
+    message = storage.remove_author(author_id)
+
+    authors = db.session.query(Author).all()
+    return render_template('authorlist.html', authors=authors, message=message)
+
+
 @app.route('/search')
 def search():
     """Query over all database tables
@@ -220,10 +325,10 @@ def search():
     query['year'] = request.args.get('publication_year')
 
     collection = storage.query_database(query)
-    print(collection)
+    # if a string is returned, it´s an error message.
     if not isinstance(collection, str):
         storage.cache_data(collection)
-    return redirect(url_for('home'))
+    return render_template('home.html', books=collection, message=f"found {len(collection)} matching records.")
 
 
 @app.route('/wildcard', methods=['POST'])
@@ -237,6 +342,7 @@ def create_query_from_wildcard():
     term = request.form.get('wildcard_term')
     print(f"from wildcard: {term}")
     collection = storage.query_for_keyword(term)
+    #if a string is returned, it´s an error message.
     if not isinstance(collection, str):
         storage.cache_data(collection)
     return redirect(url_for('home'))
