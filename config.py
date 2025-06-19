@@ -33,12 +33,4 @@ class DevConfig(Config):
     else:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_PATH}"
     #Print database-related actions to console.
-    SQLALCHEMY_ECHO = False
-
-
-def main():
-    host = platform.system()
-    print(host)
-
-if __name__ == "__main__":
-    main()
+    SQLALCHEMY_ECHO = True
