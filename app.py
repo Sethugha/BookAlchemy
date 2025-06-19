@@ -20,7 +20,6 @@ app = Flask(__name__)
 #configure flask_SQLAlchemy
 app.config.from_object('config.DevConfig')
 
-
 @app.route('/', methods=['GET'])
 def home():
     """
