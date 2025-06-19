@@ -1,4 +1,5 @@
 import wikipedia
+import requests
 
 def author_wiki_lookup(name):
     """
@@ -18,14 +19,3 @@ def author_wiki_lookup(name):
             print(f"that went wrong: {e}")
             continue
     return None
-
-
-
-def main():
-    pass
-
-
-
-
-if __name__ == "__main__":
-    main()

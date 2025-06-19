@@ -17,13 +17,13 @@ def validate_isbn(isbn):
             return None
         return f"ISBN-10 with wrong checksum. Maybe transposed digits?"
     elif len(isbn) == 13:
-        print(isbn)
+
         sum = 0
         for even in range(1, 12, 2):
             sum += int(isbn[even]) * 3
         for odd in range(0, 12, 2):
             sum += int(isbn[odd])
-        if int(isbn[-1]) == 0:
+        if sum%10 == 0 and int(isbn[-1]) == 0:
             return None
         if 10-(sum%10) == int(isbn[-1]):
             return None
@@ -82,12 +82,3 @@ def backup_database(filepath):
         return "Database saved"
     except Exception as e:
         return f"Backup failed due to exception {e}."
-
-
-
-def main():
-    isbn="9781623658830"
-    print(validate_isbn(isbn))
-
-if __name__ == "__main__":
-    main()
