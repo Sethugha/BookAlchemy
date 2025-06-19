@@ -283,10 +283,11 @@ def delete_book_in_view():
     book = Book.query.get(book_id)
     if book:
         try:
-            storage.remove_from_cache(book.id)
+
             db.session.delete(book)
             db.session.commit()
-            return render_template('home.html', message=f"Deleted Book: {title}")
+            books = db.session.query(Book).join(Author).all()
+            return render_template('home.html', message=f"Deleted Book: {title}", books=books)
         except Exception as e:
             return render_template('home.html', message=f"Error deleting book {title}. Details. {e}")
     return redirect(url_for('home.html'))
@@ -362,6 +363,6 @@ if __name__ == "__main__":
         db.init_app(app)
         #with app.app_context():
         # db.create_all()
-        app.run(host="127.0.0.1", port=5002, debug=True)
+        app.run(host="0.0.0.0", port=5002, debug=True)
     else:
         print("No database accessible. Aborting.")
